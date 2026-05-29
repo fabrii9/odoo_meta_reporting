@@ -1,0 +1,12 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_meta_ads_account_user,meta.ads.account.user,model_meta_ads_account,odoo_meta_reporting.group_meta_ads_user,1,0,0,0
+access_meta_ads_account_manager,meta.ads.account.manager,model_meta_ads_account,odoo_meta_reporting.group_meta_ads_manager,1,1,1,1
+access_meta_ads_sync_log_user,meta.ads.sync.log.user,model_meta_ads_sync_log,odoo_meta_reporting.group_meta_ads_user,1,0,1,0
+access_meta_ads_sync_log_manager,meta.ads.sync.log.manager,model_meta_ads_sync_log,odoo_meta_reporting.group_meta_ads_manager,1,1,1,1
+access_meta_ads_dataset_manager,meta.ads.dataset.manager,model_meta_ads_dataset,odoo_meta_reporting.group_meta_ads_manager,1,1,1,1
+access_meta_ads_sync_job_user,meta.ads.sync.job.user,model_meta_ads_sync_job,odoo_meta_reporting.group_meta_ads_user,1,1,1,0
+access_meta_ads_sync_job_manager,meta.ads.sync.job.manager,model_meta_ads_sync_job,odoo_meta_reporting.group_meta_ads_manager,1,1,1,1
+access_meta_ads_sync_manual_wizard_user,meta.ads.sync.manual.wizard.user,model_meta_ads_sync_manual_wizard,odoo_meta_reporting.group_meta_ads_user,1,1,1,0
+access_meta_ads_sync_manual_wizard_manager,meta.ads.sync.manual.wizard.manager,model_meta_ads_sync_manual_wizard,odoo_meta_reporting.group_meta_ads_manager,1,1,1,1
+access_meta_ads_resync_wizard_user,meta.ads.resync.wizard.user,model_meta_ads_resync_wizard,odoo_meta_reporting.group_meta_ads_user,1,1,1,0
+access_meta_ads_resync_wizard_manager,meta.ads.resync.wizard.manager,model_meta_ads_resync_wizard,odoo_meta_reporting.group_meta_ads_manager,1,1,1,1

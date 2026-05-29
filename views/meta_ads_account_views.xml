@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- ========== ACCOUNT VIEWS ========== -->
+
+  <record id="view_meta_ads_account_tree" model="ir.ui.view">
+    <field name="name">meta.ads.account.tree</field>
+    <field name="model">meta.ads.account</field>
+    <field name="arch" type="xml">
+      <tree string="Cuentas Meta Ads" decoration-muted="is_active==False" decoration-danger="sync_status=='error'" decoration-info="sync_status=='running'">
+        <field name="name"/>
+        <field name="ad_account_id"/>
+        <field name="dataset_id"/>
+        <field name="sync_level"/>
+        <field name="last_sync"/>
+        <field name="sync_status"/>
+        <field name="is_active"/>
+      </tree>
+    </field>
+  </record>
+
+  <record id="view_meta_ads_account_form" model="ir.ui.view">
+    <field name="name">meta.ads.account.form</field>
+    <field name="model">meta.ads.account</field>
+    <field name="arch" type="xml">
+      <form string="Cuenta Meta Ads">
+        <header>
+          <button name="action_sync_now"
+                  type="object"
+                  string="Sincronizar Ahora"
+                  class="oe_highlight"
+                  icon="fa-refresh"/>
+          <button name="action_test_connection_meta"
+                  type="object"
+                  string="Test Conexión Meta"
+                  icon="fa-plug"/>
+          <button name="action_view_logs"
+                  type="object"
+                  string="Ver Logs"
+                  icon="fa-list"/>
+          <field name="sync_status" widget="statusbar" statusbar_visible="idle,running,success,error"/>
+        </header>
+        <sheet>
+          <div class="oe_title">
+            <h1><field name="name" placeholder="Ej: Cliente XYZ" required="1"/></h1>
+          </div>
+          <group>
+            <group string="Cuenta Publicitaria">
+              <field name="ad_account_id" required="1"/>
+              <field name="business_id"/>
+              <field name="dataset_id" required="1" options="{'no_create': True}"/>
+              <field name="sync_level" required="1"/>
+              <field name="is_active"/>
+            </group>
+            <group string="Credenciales Meta">
+              <field name="access_token" password="True" required="1"/>
+              <field name="app_id" required="1"/>
+              <field name="app_secret" password="True" required="1"/>
+            </group>
+          </group>
+          <group>
+            <field name="last_sync" readonly="1"/>
+          </group>
+        </sheet>
+        <div class="oe_chatter">
+          <field name="message_follower_ids"/>
+          <field name="activity_ids"/>
+          <field name="message_ids"/>
+        </div>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_meta_ads_account" model="ir.actions.act_window">
+    <field name="name">Cuentas Meta Ads</field>
+    <field name="res_model">meta.ads.account</field>
+    <field name="view_mode">tree,form</field>
+  </record>
+
+</odoo>

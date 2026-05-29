@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- ========== DATASET VIEWS ========== -->
+
+  <record id="view_meta_ads_dataset_tree" model="ir.ui.view">
+    <field name="name">meta.ads.dataset.tree</field>
+    <field name="model">meta.ads.dataset</field>
+    <field name="arch" type="xml">
+      <tree string="Datasets BigQuery">
+        <field name="name"/>
+        <field name="project_id"/>
+        <field name="dataset_name"/>
+        <field name="is_active"/>
+      </tree>
+    </field>
+  </record>
+
+  <record id="view_meta_ads_dataset_form" model="ir.ui.view">
+    <field name="name">meta.ads.dataset.form</field>
+    <field name="model">meta.ads.dataset</field>
+    <field name="arch" type="xml">
+      <form string="Dataset BigQuery">
+        <sheet>
+          <div class="oe_title">
+            <h1><field name="name" placeholder="Ej: Producción" required="1"/></h1>
+          </div>
+          <group>
+            <group string="Proyecto">
+              <field name="project_id" required="1"/>
+              <field name="dataset_name" required="1"/>
+              <field name="table_prefix"/>
+              <field name="is_active"/>
+            </group>
+            <group string="Autenticación">
+              <field name="credentials_json" password="True" required="1"/>
+            </group>
+          </group>
+          <div class="oe_button_box" name="button_box">
+            <button name="action_test_connection_bigquery"
+                    type="object"
+                    string="Test Conexión BigQuery"
+                    icon="fa-plug"
+                    class="oe_stat_button"/>
+          </div>
+          <group string="Cuentas Asociadas">
+            <field name="account_ids" readonly="1">
+              <tree>
+                <field name="name"/>
+                <field name="ad_account_id"/>
+                <field name="sync_status"/>
+              </tree>
+            </field>
+          </group>
+        </sheet>
+        <div class="oe_chatter">
+          <field name="message_follower_ids"/>
+          <field name="activity_ids"/>
+          <field name="message_ids"/>
+        </div>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_meta_ads_dataset" model="ir.actions.act_window">
+    <field name="name">Datasets BigQuery</field>
+    <field name="res_model">meta.ads.dataset</field>
+    <field name="view_mode">tree,form</field>
+  </record>
+
+</odoo>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <!-- ========== MANUAL SYNC WIZARD ========== -->
+
+  <record id="view_meta_ads_sync_manual_wizard_form" model="ir.ui.view">
+    <field name="name">meta.ads.sync.manual.wizard.form</field>
+    <field name="model">meta.ads.sync.manual.wizard</field>
+    <field name="arch" type="xml">
+      <form string="Sincronizar Ahora">
+        <sheet>
+          <group>
+            <field name="account_id" options="{'no_create': True}"/>
+            <field name="sync_date"/>
+          </group>
+        </sheet>
+        <footer>
+          <button name="action_sync_now"
+                  type="object"
+                  string="Sincronizar"
+                  class="oe_highlight"/>
+          <button string="Cancelar" class="oe_link" special="cancel"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_meta_ads_sync_manual_wizard" model="ir.actions.act_window">
+    <field name="name">Sincronizar Ahora</field>
+    <field name="res_model">meta.ads.sync.manual.wizard</field>
+    <field name="view_mode">form</field>
+    <field name="target">new</field>
+  </record>
+
+  <!-- ========== RESYNC WIZARD ========== -->
+
+  <record id="view_meta_ads_resync_wizard_form" model="ir.ui.view">
+    <field name="name">meta.ads.resync.wizard.form</field>
+    <field name="model">meta.ads.resync.wizard</field>
+    <field name="arch" type="xml">
+      <form string="Reprocesar Período">
+        <sheet>
+          <group>
+            <field name="account_id" options="{'no_create': True}"/>
+          </group>
+          <group>
+            <field name="date_from"/>
+            <field name="date_to"/>
+          </group>
+        </sheet>
+        <footer>
+          <button name="action_resync_period"
+                  type="object"
+                  string="Reprocesar"
+                  class="oe_highlight"
+                  confirm="Esto eliminará y volverá a insertar los datos del período seleccionado. ¿Continuar?"/>
+          <button string="Cancelar" class="oe_link" special="cancel"/>
+        </footer>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_meta_ads_resync_wizard" model="ir.actions.act_window">
+    <field name="name">Reprocesar Período</field>
+    <field name="res_model">meta.ads.resync.wizard</field>
+    <field name="view_mode">form</field>
+    <field name="target">new</field>
+  </record>
+
+  <!-- ========== MENÚS ========== -->
+
+  <menuitem id="menu_meta_reporting_root"
+            name="Meta Reporting"
+            sequence="50"
+            web_icon="odoo_meta_reporting,static/description/icon.png"/>
+
+  <menuitem id="menu_meta_reporting_accounts"
+            name="Cuentas"
+            parent="menu_meta_reporting_root"
+            action="action_meta_ads_account"
+            sequence="10"/>
+
+  <menuitem id="menu_meta_reporting_logs"
+            name="Logs de Sync"
+            parent="menu_meta_reporting_root"
+            action="action_meta_ads_sync_log"
+            sequence="20"/>
+
+  <menuitem id="menu_meta_reporting_dataset"
+            name="Configuración BigQuery"
+            parent="menu_meta_reporting_root"
+            action="action_meta_ads_dataset"
+            sequence="30"/>
+
+  <menuitem id="menu_meta_reporting_sync_now"
+            name="Sincronizar Ahora"
+            parent="menu_meta_reporting_root"
+            action="action_meta_ads_sync_manual_wizard"
+            sequence="40"/>
+
+  <menuitem id="menu_meta_reporting_resync"
+            name="Reprocesar Período"
+            parent="menu_meta_reporting_root"
+            action="action_meta_ads_resync_wizard"
+            sequence="50"/>
+
+</odoo>
