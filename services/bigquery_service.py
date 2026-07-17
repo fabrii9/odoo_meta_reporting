@@ -57,8 +57,6 @@ class BigQueryService:
         # Crear tabla si no existe
         try:
             self.client.get_table(table_ref)
-            # Si la tabla ya existe, asegurar columnas nuevas (migración de schema)
-            self._ensure_column(table_ref, 'publisher_platform', 'STRING')
         except NotFound:
             _logger.info('BigQuery: creando tabla %s', table_ref)
             schema = self._build_schema(level)
@@ -71,20 +69,6 @@ class BigQueryService:
             self.client.create_table(table, exists_ok=True)
 
         return True
-
-    def _ensure_column(self, table_ref, column_name, column_type):
-        """Agrega una columna a la tabla si no existe (BigQuery soporta ADD COLUMN IF NOT EXISTS)."""
-        query = f"""
-            ALTER TABLE `{table_ref}`
-            ADD COLUMN IF NOT EXISTS {column_name} {column_type}
-        """
-        try:
-            job = self.client.query(query)
-            job.result()
-        except BadRequest as e:
-            # Puede fallar si la columna ya existe en un race condition
-            if 'Duplicate column' not in str(e):
-                raise
 
     def upsert_daily_data(self, dataset_name, table_name, date_str, records):
         """DELETE + INSERT para una fecha específica."""
@@ -133,7 +117,6 @@ class BigQueryService:
             SchemaField("cpm", "FLOAT64"),
             SchemaField("reach", "INT64"),
             SchemaField("frequency", "FLOAT64"),
-            SchemaField("publisher_platform", "STRING"),
             SchemaField("purchase_roas", "STRING"),
             SchemaField("actions", "STRING"),
             SchemaField("cost_per_action_type", "STRING"),
