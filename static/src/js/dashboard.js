@@ -17,6 +17,21 @@
         return formatNumber(num) + '%';
     };
 
+    const TOOLTIPS = {
+        spend: 'Gasto total en publicidad durante el período seleccionado.',
+        impressions: 'Número de veces que se mostraron tus anuncios.',
+        clicks: 'Clics que hicieron en el enlace de tu anuncio.',
+        ctr: 'Click-Through Rate: porcentaje de impresiones que terminaron en clic.',
+        cpc: 'Costo por clic: cuánto pagás en promedio por cada clic.',
+        reach: 'Número de personas únicas que vieron tus anuncios.',
+        frequency: 'Promedio de veces que cada persona vio tus anuncios.',
+        placement: 'Distribución por plataforma (Facebook, Instagram, etc.).',
+        daily: 'Evolución diaria de las métricas principales.',
+        campaign: 'Resultados agrupados por campaña.',
+        creative: 'Resultados agrupados por anuncio o creatividad.',
+        funnel: 'Embudo de conversión: de impresiones a clics.',
+    };
+
     let dailyChart = null;
     let placementChart = null;
 
@@ -71,35 +86,56 @@
     };
 
     const renderDashboard = (data) => {
+        if (typeof Chart === 'undefined') {
+            showError('No se pudo cargar la librería de gráficos (Chart.js). Verificá tu conexión a internet y recargá la página.');
+            return;
+        }
+
         const kpis = data.kpis || {};
 
         // KPIs
-        document.getElementById('kpi-spend').textContent = formatMoney(kpis.spend || 0);
-        document.getElementById('kpi-impressions').textContent = formatNumber(kpis.impressions || 0);
-        document.getElementById('kpi-clicks').textContent = formatNumber(kpis.clicks || 0);
-        document.getElementById('kpi-ctr').textContent = formatPercent(kpis.ctr || 0);
-        document.getElementById('kpi-cpc').textContent = formatMoney(kpis.cpc || 0);
-        document.getElementById('kpi-reach').textContent = formatNumber(kpis.reach || 0);
-        document.getElementById('kpi-frequency').textContent = formatNumber(kpis.frequency || 0);
+        setKpi('kpi-spend', formatMoney(kpis.spend || 0));
+        setKpi('kpi-impressions', formatNumber(kpis.impressions || 0));
+        setKpi('kpi-clicks', formatNumber(kpis.clicks || 0));
+        setKpi('kpi-ctr', formatPercent(kpis.ctr || 0));
+        setKpi('kpi-cpc', formatMoney(kpis.cpc || 0));
+        setKpi('kpi-reach', formatNumber(kpis.reach || 0));
+        setKpi('kpi-frequency', formatNumber(kpis.frequency || 0));
 
         // Funnel
-        document.getElementById('funnel-impressions').textContent = formatNumber(kpis.impressions || 0);
-        document.getElementById('funnel-clicks').textContent = formatNumber(kpis.clicks || 0);
-        document.getElementById('funnel-ctr').textContent = 'CTR: ' + formatPercent(kpis.ctr || 0);
+        setText('funnel-impressions', formatNumber(kpis.impressions || 0));
+        setText('funnel-clicks', formatNumber(kpis.clicks || 0));
+        setText('funnel-ctr', 'CTR: ' + formatPercent(kpis.ctr || 0));
 
         // Gráficos
-        renderDailyChart(data.daily || []);
-        renderPlacementChart(data.placements || []);
+        try {
+            renderDailyChart(data.daily || []);
+            renderPlacementChart(data.placements || []);
+        } catch (e) {
+            showError('Error al dibujar gráficos: ' + e.message);
+        }
 
         // Tablas
         renderTable('table-campaigns', data.campaigns || [], ['campaign_name', 'spend', 'impressions', 'clicks', 'ctr']);
         renderTable('table-ads', data.ads || [], ['campaign_name', 'ad_name', 'spend', 'impressions', 'clicks', 'ctr']);
     };
 
+    const setKpi = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+    };
+
+    const setText = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+    };
+
     const renderDailyChart = (daily) => {
         const canvas = document.getElementById('chart-daily');
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
         const labels = daily.map(d => d.date ? d.date.substring(0, 10) : '');
         const spendData = daily.map(d => d.spend || 0);
         const impressionsData = daily.map(d => d.impressions || 0);
@@ -114,21 +150,9 @@
             data: {
                 labels: labels,
                 datasets: [
-                    {
-                        label: 'Spend',
-                        data: spendData,
-                        backgroundColor: '#1877f2',
-                    },
-                    {
-                        label: 'Impressions',
-                        data: impressionsData,
-                        backgroundColor: '#42b72a',
-                    },
-                    {
-                        label: 'Clicks',
-                        data: clicksData,
-                        backgroundColor: '#ffcc00',
-                    },
+                    { label: 'Gasto', data: spendData, backgroundColor: '#1877f2' },
+                    { label: 'Impresiones', data: impressionsData, backgroundColor: '#42b72a' },
+                    { label: 'Clics', data: clicksData, backgroundColor: '#ffcc00' },
                 ],
             },
             options: {
@@ -136,12 +160,8 @@
                 maintainAspectRatio: false,
                 legend: { position: 'bottom' },
                 scales: {
-                    yAxes: [{
-                        ticks: { beginAtZero: true },
-                    }],
-                    xAxes: [{
-                        ticks: { autoSkip: false, maxRotation: 45, minRotation: 0 },
-                    }],
+                    yAxes: [{ ticks: { beginAtZero: true } }],
+                    xAxes: [{ ticks: { autoSkip: false, maxRotation: 45, minRotation: 0 } }],
                 },
             },
         });
@@ -151,6 +171,8 @@
         const canvas = document.getElementById('chart-placement');
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
         const labels = placements.map(p => p.publisher_platform || 'Desconocido');
         const data = placements.map(p => p.impressions || 0);
         const colors = ['#1877f2', '#42b72a', '#ffcc00', '#e91e63', '#9c27b0', '#00bcd4'];
@@ -223,7 +245,6 @@
             btnRefresh.addEventListener('click', fetchData);
         }
 
-        // Cargar automáticamente si hay cuenta
         if (accountSelect && accountSelect.value) {
             fetchData();
         }
