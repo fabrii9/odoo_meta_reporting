@@ -12,7 +12,7 @@
     'author': 'Fabrizio + ChatGPT',
     'license': 'AGPL-3',
     'category': 'Marketing',
-    'depends': ['base', 'mail'],
+    'depends': ['base', 'mail', 'web'],
     'data': [
         'security/meta_ads_security.xml',
         'security/ir.model.access.csv',
@@ -20,6 +20,7 @@
         'views/meta_ads_dataset_views.xml',
         'views/meta_ads_account_views.xml',
         'views/meta_ads_sync_log_views.xml',
+        'views/meta_ads_dashboard.xml',
         'views/wizard_views.xml',
     ],
     'external_dependencies': {

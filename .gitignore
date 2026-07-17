@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Odoo
+*.csv~
+*.swp
+*.orig
+
+# Entornos
+.env
+.venv
+venv/

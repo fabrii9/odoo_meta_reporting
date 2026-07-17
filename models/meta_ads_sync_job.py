@@ -204,7 +204,8 @@ class MetaAdsSyncJob(models.TransientModel):
                 )
         return True
 
-    def _get_table_name(self, dataset, level):
+    @staticmethod
+    def _get_table_name(dataset, level):
         prefix = (dataset.table_prefix or 'daily_').strip()
         mapping = {
             'campaign': 'campaign_stats',

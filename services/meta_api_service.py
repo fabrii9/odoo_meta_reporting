@@ -87,6 +87,7 @@ class MetaApiService:
             AdsInsights.Field.cpm,
             AdsInsights.Field.reach,
             AdsInsights.Field.frequency,
+            AdsInsights.Field.publisher_platform,
             AdsInsights.Field.actions,
             AdsInsights.Field.purchase_roas,
             AdsInsights.Field.cost_per_action_type,
@@ -186,6 +187,7 @@ class MetaApiService:
             row['cpm'] = self._to_float(insight.get('cpm'))
             row['reach'] = self._to_int(insight.get('reach'))
             row['frequency'] = self._to_float(insight.get('frequency'))
+            row['publisher_platform'] = insight.get('publisher_platform', '') or ''
 
             # Conversiones (se serializan como JSON string para BigQuery)
             row['purchase_roas'] = self._serialize_actions(insight.get('purchase_roas'))

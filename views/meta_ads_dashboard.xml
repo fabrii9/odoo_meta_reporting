@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <template id="meta_ads_dashboard_template" name="Meta Ads Dashboard">
+    <t t-call="web.layout">
+      <div class="o_meta_ads_dashboard">
+        <!-- Header / Filtros -->
+        <div class="dashboard-header">
+          <div class="brand">
+            <img src="/odoo_meta_reporting/static/description/icon.png" alt="Meta" class="brand-logo"/>
+            <h1>Meta Ads Dashboard</h1>
+          </div>
+          <div class="filters">
+            <select id="filter-account" class="filter-control">
+              <option value="">Seleccionar cuenta...</option>
+              <t t-foreach="accounts" t-as="account">
+                <option t-att-value="account.id" t-esc="account.name"/>
+              </t>
+            </select>
+            <input id="filter-campaign" type="text" class="filter-control" placeholder="Campaña (opcional)"/>
+            <input id="filter-date-from" type="date" class="filter-control" t-att-value="default_date_from"/>
+            <input id="filter-date-to" type="date" class="filter-control" t-att-value="default_date_to"/>
+            <button id="btn-refresh" class="btn-refresh">Actualizar</button>
+          </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="dashboard-loading" class="dashboard-loading hidden">Cargando datos...</div>
+        <div id="dashboard-error" class="dashboard-error hidden"></div>
+
+        <!-- KPIs -->
+        <div class="kpi-grid" id="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">Amount spent</div>
+            <div class="kpi-value" id="kpi-spend">-</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Impressions</div>
+            <div class="kpi-value" id="kpi-impressions">-</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Link clicks</div>
+            <div class="kpi-value" id="kpi-clicks">-</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">CTR</div>
+            <div class="kpi-value" id="kpi-ctr">-</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">CPC</div>
+            <div class="kpi-value" id="kpi-cpc">-</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Reach</div>
+            <div class="kpi-value" id="kpi-reach">-</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Frequency</div>
+            <div class="kpi-value" id="kpi-frequency">-</div>
+          </div>
+        </div>
+
+        <!-- Gráficos principales -->
+        <div class="chart-grid">
+          <div class="card chart-card">
+            <h3>Daily performance</h3>
+            <canvas id="chart-daily"></canvas>
+          </div>
+          <div class="card chart-card">
+            <h3>Placement</h3>
+            <canvas id="chart-placement"></canvas>
+          </div>
+        </div>
+
+        <!-- Embudo -->
+        <div class="card funnel-card">
+          <h3>Funnel</h3>
+          <div class="funnel" id="funnel">
+            <div class="funnel-step">
+              <span class="funnel-label">Impressions</span>
+              <span class="funnel-value" id="funnel-impressions">-</span>
+            </div>
+            <div class="funnel-arrow">↓</div>
+            <div class="funnel-step">
+              <span class="funnel-label">Link clicks</span>
+              <span class="funnel-value" id="funnel-clicks">-</span>
+              <span class="funnel-rate" id="funnel-ctr">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tablas -->
+        <div class="card">
+          <h3>Campaigns</h3>
+          <table class="data-table" id="table-campaigns">
+            <thead>
+              <tr>
+                <th>Campaign name</th>
+                <th class="numeric">Spend</th>
+                <th class="numeric">Impressions</th>
+                <th class="numeric">Clicks</th>
+                <th class="numeric">CTR</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <h3>Creatives / Ads</h3>
+          <table class="data-table" id="table-ads">
+            <thead>
+              <tr>
+                <th>Campaign</th>
+                <th>Ad name</th>
+                <th class="numeric">Spend</th>
+                <th class="numeric">Impressions</th>
+                <th class="numeric">Clicks</th>
+                <th class="numeric">CTR</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <link rel="stylesheet" href="/odoo_meta_reporting/static/src/css/dashboard.css"/>
+      <script type="text/javascript" src="/web/static/lib/Chart/Chart.js"/>
+      <script type="text/javascript" src="/odoo_meta_reporting/static/src/js/dashboard.js"/>
+    </t>
+  </template>
+
+</odoo>
