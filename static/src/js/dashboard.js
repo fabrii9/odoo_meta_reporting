@@ -17,21 +17,6 @@
         return formatNumber(num) + '%';
     };
 
-    const TOOLTIPS = {
-        spend: 'Gasto total en publicidad durante el período seleccionado.',
-        impressions: 'Número de veces que se mostraron tus anuncios.',
-        clicks: 'Clics que hicieron en el enlace de tu anuncio.',
-        ctr: 'Click-Through Rate: porcentaje de impresiones que terminaron en clic.',
-        cpc: 'Costo por clic: cuánto pagás en promedio por cada clic.',
-        reach: 'Número de personas únicas que vieron tus anuncios.',
-        frequency: 'Promedio de veces que cada persona vio tus anuncios.',
-        placement: 'Distribución por plataforma (Facebook, Instagram, etc.).',
-        daily: 'Evolución diaria de las métricas principales.',
-        campaign: 'Resultados agrupados por campaña.',
-        creative: 'Resultados agrupados por anuncio o creatividad.',
-        funnel: 'Embudo de conversión: de impresiones a clics.',
-    };
-
     let dailyChart = null;
     let placementChart = null;
 
@@ -45,13 +30,16 @@
     };
 
     const showLoading = (show) => {
-        document.getElementById('dashboard-loading').classList.toggle('hidden', !show);
+        const el = document.getElementById('dashboard-loading');
+        if (el) el.classList.toggle('hidden', !show);
     };
 
     const showError = (msg) => {
         const el = document.getElementById('dashboard-error');
-        el.textContent = msg || '';
-        el.classList.toggle('hidden', !msg);
+        if (el) {
+            el.textContent = msg || '';
+            el.classList.toggle('hidden', !msg);
+        }
     };
 
     const fetchData = async () => {
@@ -65,12 +53,25 @@
         showError('');
 
         try {
+            console.log('[MetaDashboard] Fetching data...', filters);
             const response = await fetch('/meta_reporting/dashboard/data', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(filters),
             });
-            const data = await response.json();
+
+            const contentType = response.headers.get('content-type') || '';
+            let data;
+            if (contentType.includes('application/json')) {
+                data = await response.json();
+            } else {
+                const text = await response.text();
+                console.error('[MetaDashboard] Respuesta no-JSON:', text.substring(0, 500));
+                showError('Error del servidor: respuesta inesperada.');
+                return;
+            }
+
+            console.log('[MetaDashboard] Data received:', data);
 
             if (!response.ok || data.error) {
                 showError(data.error || 'Error ' + response.status);
@@ -79,6 +80,7 @@
 
             renderDashboard(data);
         } catch (err) {
+            console.error('[MetaDashboard] Error:', err);
             showError('Error de conexión: ' + err.message);
         } finally {
             showLoading(false);
@@ -86,11 +88,6 @@
     };
 
     const renderDashboard = (data) => {
-        if (typeof Chart === 'undefined') {
-            showError('No se pudo cargar la librería de gráficos (Chart.js). Verificá tu conexión a internet y recargá la página.');
-            return;
-        }
-
         const kpis = data.kpis || {};
 
         // KPIs
@@ -107,13 +104,9 @@
         setText('funnel-clicks', formatNumber(kpis.clicks || 0));
         setText('funnel-ctr', 'CTR: ' + formatPercent(kpis.ctr || 0));
 
-        // Gráficos
-        try {
-            renderDailyChart(data.daily || []);
-            renderPlacementChart(data.placements || []);
-        } catch (e) {
-            showError('Error al dibujar gráficos: ' + e.message);
-        }
+        // Gráficos (cada uno protegido para no romper todo)
+        safeRender('rendimiento diario', () => renderDailyChart(data.daily || []));
+        safeRender('ubicación', () => renderPlacementChart(data.placements || []));
 
         // Tablas
         renderTable('table-campaigns', data.campaigns || [], ['campaign_name', 'spend', 'impressions', 'clicks', 'ctr']);
@@ -130,7 +123,19 @@
         if (el) el.textContent = value;
     };
 
+    const safeRender = (name, fn) => {
+        try {
+            fn();
+        } catch (e) {
+            console.error('[MetaDashboard] Error dibujando ' + name + ':', e);
+        }
+    };
+
     const renderDailyChart = (daily) => {
+        if (typeof Chart === 'undefined') {
+            console.warn('[MetaDashboard] Chart.js no está cargado, saltando gráfico diario.');
+            return;
+        }
         const canvas = document.getElementById('chart-daily');
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
@@ -168,6 +173,10 @@
     };
 
     const renderPlacementChart = (placements) => {
+        if (typeof Chart === 'undefined') {
+            console.warn('[MetaDashboard] Chart.js no está cargado, saltando gráfico de ubicación.');
+            return;
+        }
         const canvas = document.getElementById('chart-placement');
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
@@ -235,6 +244,8 @@
 
     // Inicialización
     document.addEventListener('DOMContentLoaded', () => {
+        console.log('[MetaDashboard] DOM ready. Chart.js loaded:', typeof Chart !== 'undefined');
+
         const accountSelect = document.getElementById('filter-account');
         if (accountSelect && accountSelect.options.length > 1) {
             accountSelect.selectedIndex = 1;
