@@ -57,8 +57,8 @@
             });
             const data = await response.json();
 
-            if (data.error) {
-                showError(data.error);
+            if (!response.ok || data.error) {
+                showError(data.error || 'Error ' + response.status);
                 return;
             }
 
@@ -87,10 +87,8 @@
         document.getElementById('funnel-clicks').textContent = formatNumber(kpis.clicks || 0);
         document.getElementById('funnel-ctr').textContent = 'CTR: ' + formatPercent(kpis.ctr || 0);
 
-        // Gráfico diario
+        // Gráficos
         renderDailyChart(data.daily || []);
-
-        // Gráfico de placement
         renderPlacementChart(data.placements || []);
 
         // Tablas
@@ -99,13 +97,15 @@
     };
 
     const renderDailyChart = (daily) => {
-        const ctx = document.getElementById('chart-daily').getContext('2d');
-        const labels = daily.map(d => d.date);
+        const canvas = document.getElementById('chart-daily');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const labels = daily.map(d => d.date ? d.date.substring(0, 10) : '');
         const spendData = daily.map(d => d.spend || 0);
         const impressionsData = daily.map(d => d.impressions || 0);
         const clicksData = daily.map(d => d.clicks || 0);
 
-        if (dailyChart) {
+        if (dailyChart && typeof dailyChart.destroy === 'function') {
             dailyChart.destroy();
         }
 
@@ -118,52 +118,44 @@
                         label: 'Spend',
                         data: spendData,
                         backgroundColor: '#1877f2',
-                        yAxisID: 'y-spend',
                     },
                     {
                         label: 'Impressions',
                         data: impressionsData,
                         backgroundColor: '#42b72a',
-                        yAxisID: 'y-metrics',
                     },
                     {
                         label: 'Clicks',
                         data: clicksData,
                         backgroundColor: '#ffcc00',
-                        yAxisID: 'y-metrics',
                     },
                 ],
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
+                legend: { position: 'bottom' },
                 scales: {
-                    'y-spend': {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        title: { display: true, text: 'Spend' },
-                    },
-                    'y-metrics': {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        grid: { drawOnChartArea: false },
-                        title: { display: true, text: 'Impressions / Clicks' },
-                    },
+                    yAxes: [{
+                        ticks: { beginAtZero: true },
+                    }],
+                    xAxes: [{
+                        ticks: { autoSkip: false, maxRotation: 45, minRotation: 0 },
+                    }],
                 },
             },
         });
     };
 
     const renderPlacementChart = (placements) => {
-        const ctx = document.getElementById('chart-placement').getContext('2d');
+        const canvas = document.getElementById('chart-placement');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
         const labels = placements.map(p => p.publisher_platform || 'Desconocido');
         const data = placements.map(p => p.impressions || 0);
-        const colors = ['#1877f2', '#42b72a', '#ffcc00', '#e91e63', '#9c27b0'];
+        const colors = ['#1877f2', '#42b72a', '#ffcc00', '#e91e63', '#9c27b0', '#00bcd4'];
 
-        if (placementChart) {
+        if (placementChart && typeof placementChart.destroy === 'function') {
             placementChart.destroy();
         }
 
@@ -179,15 +171,14 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom' },
-                },
+                legend: { position: 'bottom' },
             },
         });
     };
 
     const renderTable = (tableId, rows, columns) => {
         const tbody = document.querySelector('#' + tableId + ' tbody');
+        if (!tbody) return;
         tbody.innerHTML = '';
 
         if (!rows.length) {
@@ -223,14 +214,17 @@
     // Inicialización
     document.addEventListener('DOMContentLoaded', () => {
         const accountSelect = document.getElementById('filter-account');
-        if (accountSelect.options.length > 1) {
+        if (accountSelect && accountSelect.options.length > 1) {
             accountSelect.selectedIndex = 1;
         }
 
-        document.getElementById('btn-refresh').addEventListener('click', fetchData);
+        const btnRefresh = document.getElementById('btn-refresh');
+        if (btnRefresh) {
+            btnRefresh.addEventListener('click', fetchData);
+        }
 
         // Cargar automáticamente si hay cuenta
-        if (accountSelect.value) {
+        if (accountSelect && accountSelect.value) {
             fetchData();
         }
     });

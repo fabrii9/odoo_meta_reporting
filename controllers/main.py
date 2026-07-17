@@ -101,6 +101,9 @@ class MetaAdsDashboardController(http.Controller):
                     if v != v:  # NaN
                         return 0
                     return round(v, 4)
+                if hasattr(v, 'isoformat'):
+                    # datetime.date o datetime.datetime
+                    return v.isoformat()
                 return v
 
             def clean_row(row):
