@@ -193,6 +193,49 @@ class BigQueryQueryService:
             _logger.info('BigQuery: tabla %s no tiene ad_name, omitiendo ads', table_ref)
             return []
 
+    def get_conversion_kpis(self, table_ref, date_from, date_to, campaign_name=None):
+        """KPIs de conversión: purchases, purchase_value, roas, cost_per_purchase."""
+        query = f"""
+            WITH purchases AS (
+                SELECT
+                    SUM(CAST(JSON_VALUE(action, '$.value') AS INT64)) AS purchases,
+                    SUM(CAST(JSON_VALUE(action, '$.value') AS FLOAT64)) AS purchase_value
+                FROM `{table_ref}`,
+                UNNEST(JSON_EXTRACT_ARRAY(actions)) AS action
+                WHERE date BETWEEN @date_from AND @date_to
+                AND JSON_VALUE(action, '$.action_type') = 'purchase'
+            ),
+            roas AS (
+                SELECT
+                    AVG(CAST(JSON_VALUE(roas, '$.value') AS FLOAT64)) AS roas
+                FROM `{table_ref}`,
+                UNNEST(JSON_EXTRACT_ARRAY(purchase_roas)) AS roas
+                WHERE date BETWEEN @date_from AND @date_to
+                AND JSON_VALUE(roas, '$.action_type') = 'purchase'
+            ),
+            spend AS (
+                SELECT SUM(spend) AS total_spend
+                FROM `{table_ref}`
+                WHERE date BETWEEN @date_from AND @date_to
+            )
+            SELECT
+                purchases.purchases,
+                purchases.purchase_value,
+                roas.roas,
+                SAFE_DIVIDE(spend.total_spend, purchases.purchases) AS cost_per_purchase
+            FROM purchases, roas, spend
+        """
+        params = [
+            ('date_from', 'DATE', date_from),
+            ('date_to', 'DATE', date_to),
+        ]
+        try:
+            rows = self._run_query(query, params)
+            return rows[0] if rows else {}
+        except BadRequest:
+            _logger.info('BigQuery: no se pudieron extraer conversiones de %s', table_ref)
+            return {}
+
     def get_placements(self, table_ref, date_from, date_to, campaign_name=None):
         """Distribución por publisher_platform. Fallback si la columna aun no existe."""
         query = f"""

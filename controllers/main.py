@@ -17,9 +17,10 @@ class MetaAdsDashboardController(http.Controller):
         if not self._check_access():
             return request.redirect('/web/login')
 
-        # Fechas por defecto: últimos 7 días
+        # Fechas por defecto: último mes completo
         date_to = fields.Date.context_today(request.env.user)
-        date_from = date_to - timedelta(days=6)
+        date_from = date_to.replace(day=1) - timedelta(days=1)
+        date_from = date_from.replace(day=1)
 
         accounts = request.env['meta.ads.account'].sudo().search([
             ('is_active', '=', True),
@@ -96,6 +97,7 @@ class MetaAdsDashboardController(http.Controller):
             ad_ref = table_ref('ad')
 
             kpis = service.get_kpis(campaign_ref, date_from, date_to, campaign_name)
+            conversion_kpis = service.get_conversion_kpis(campaign_ref, date_from, date_to, campaign_name)
             daily = service.get_daily_series(campaign_ref, date_from, date_to, campaign_name)
             campaigns = service.get_campaigns(campaign_ref, date_from, date_to)
             adsets = service.get_adsets(adset_ref, date_from, date_to, campaign_name)
@@ -120,6 +122,7 @@ class MetaAdsDashboardController(http.Controller):
             result = {
                 'success': True,
                 'kpis': clean_row(kpis),
+                'conversion_kpis': clean_row(conversion_kpis),
                 'daily': [clean_row(r) for r in daily],
                 'campaigns': [clean_row(r) for r in campaigns],
                 'adsets': [clean_row(r) for r in adsets],

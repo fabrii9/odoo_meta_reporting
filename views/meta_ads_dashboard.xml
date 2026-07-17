@@ -30,51 +30,71 @@
 
         <!-- KPIs -->
         <div class="kpi-grid" id="kpi-grid">
-          <div class="kpi-card" title="Gasto total en publicidad durante el período seleccionado.">
-            <div class="kpi-label">Gasto total <span class="help-icon">?</span></div>
+          <div class="kpi-card">
+            <div class="kpi-label">Gasto total <span class="help-icon" data-tooltip="Gasto total en publicidad durante el período seleccionado.">?</span></div>
             <div class="kpi-value" id="kpi-spend">-</div>
           </div>
-          <div class="kpi-card" title="Número de veces que se mostraron tus anuncios.">
-            <div class="kpi-label">Impresiones <span class="help-icon">?</span></div>
+          <div class="kpi-card">
+            <div class="kpi-label">Impresiones <span class="help-icon" data-tooltip="Número de veces que se mostraron tus anuncios.">?</span></div>
             <div class="kpi-value" id="kpi-impressions">-</div>
           </div>
-          <div class="kpi-card" title="Clics que hicieron en el enlace de tu anuncio.">
-            <div class="kpi-label">Clics en enlace <span class="help-icon">?</span></div>
+          <div class="kpi-card">
+            <div class="kpi-label">Clics en enlace <span class="help-icon" data-tooltip="Clics que hicieron en el enlace de tu anuncio.">?</span></div>
             <div class="kpi-value" id="kpi-clicks">-</div>
           </div>
-          <div class="kpi-card" title="Click-Through Rate: porcentaje de impresiones que terminaron en clic.">
-            <div class="kpi-label">CTR <span class="help-icon">?</span></div>
+          <div class="kpi-card">
+            <div class="kpi-label">CTR <span class="help-icon" data-tooltip="Click-Through Rate: porcentaje de impresiones que terminaron en clic.">?</span></div>
             <div class="kpi-value" id="kpi-ctr">-</div>
           </div>
-          <div class="kpi-card" title="Costo por clic: cuánto pagás en promedio por cada clic.">
-            <div class="kpi-label">CPC <span class="help-icon">?</span></div>
+          <div class="kpi-card">
+            <div class="kpi-label">CPC <span class="help-icon" data-tooltip="Costo por clic: cuánto pagás en promedio por cada clic.">?</span></div>
             <div class="kpi-value" id="kpi-cpc">-</div>
           </div>
-          <div class="kpi-card" title="Número de personas únicas que vieron tus anuncios.">
-            <div class="kpi-label">Alcance <span class="help-icon">?</span></div>
+          <div class="kpi-card">
+            <div class="kpi-label">Alcance <span class="help-icon" data-tooltip="Número de personas únicas que vieron tus anuncios.">?</span></div>
             <div class="kpi-value" id="kpi-reach">-</div>
           </div>
-          <div class="kpi-card" title="Promedio de veces que cada persona vio tus anuncios.">
-            <div class="kpi-label">Frecuencia <span class="help-icon">?</span></div>
+          <div class="kpi-card">
+            <div class="kpi-label">Frecuencia <span class="help-icon" data-tooltip="Promedio de veces que cada persona vio tus anuncios.">?</span></div>
             <div class="kpi-value" id="kpi-frequency">-</div>
+          </div>
+        </div>
+
+        <!-- KPIs de conversión -->
+        <div class="kpi-grid kpi-grid-secondary">
+          <div class="kpi-card">
+            <div class="kpi-label">Compras <span class="help-icon" data-tooltip="Número de compras atribuidas a tus anuncios (desde acciones de Meta).">?</span></div>
+            <div class="kpi-value" id="kpi-purchases">-</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Valor de compra <span class="help-icon" data-tooltip="Valor monetario total de las compras atribuidas.">?</span></div>
+            <div class="kpi-value" id="kpi-purchase-value">-</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">ROAS <span class="help-icon" data-tooltip="Return on Ad Spend: retorno sobre inversión publicitaria (valor de compra / gasto).">?</span></div>
+            <div class="kpi-value" id="kpi-roas">-</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Costo por compra <span class="help-icon" data-tooltip="Gasto promedio para conseguir una compra.">?</span></div>
+            <div class="kpi-value" id="kpi-cost-per-purchase">-</div>
           </div>
         </div>
 
         <!-- Gráficos principales -->
         <div class="chart-grid">
-          <div class="card chart-card" title="Evolución diaria de las métricas principales.">
-            <h3>Rendimiento diario <span class="help-icon">?</span></h3>
+          <div class="card chart-card">
+            <h3>Rendimiento diario <span class="help-icon" data-tooltip="Evolución diaria de las métricas principales.">?</span></h3>
             <canvas id="chart-daily"></canvas>
           </div>
-          <div class="card chart-card" title="Distribución por plataforma (Facebook, Instagram, etc.).">
-            <h3>Ubicación <span class="help-icon">?</span></h3>
+          <div class="card chart-card">
+            <h3>Ubicación <span class="help-icon" data-tooltip="Distribución por plataforma (Facebook, Instagram, etc.).">?</span></h3>
             <canvas id="chart-placement"></canvas>
           </div>
         </div>
 
         <!-- Embudo -->
-        <div class="card funnel-card" title="Embudo de conversión: de impresiones a clics.">
-          <h3>Embudo <span class="help-icon">?</span></h3>
+        <div class="card funnel-card">
+          <h3>Embudo <span class="help-icon" data-tooltip="Embudo de conversión: de impresiones a clics y compras.">?</span></h3>
           <div class="funnel" id="funnel">
             <div class="funnel-step">
               <span class="funnel-label">Impresiones</span>
@@ -86,15 +106,27 @@
               <span class="funnel-value" id="funnel-clicks">-</span>
               <span class="funnel-rate" id="funnel-ctr">-</span>
             </div>
+            <div class="funnel-arrow">↓</div>
+            <div class="funnel-step">
+              <span class="funnel-label">Compras</span>
+              <span class="funnel-value" id="funnel-purchases">-</span>
+              <span class="funnel-rate" id="funnel-purchase-rate">-</span>
+            </div>
           </div>
         </div>
 
         <!-- Tabs de niveles -->
         <div class="card">
           <div class="level-tabs">
-            <button class="tab-btn active" data-tab="campaigns" title="Resultados agrupados por campaña">Campañas <span class="help-icon">?</span></button>
-            <button class="tab-btn" data-tab="adsets" title="Resultados agrupados por conjunto de anuncios">Adsets <span class="help-icon">?</span></button>
-            <button class="tab-btn" data-tab="ads" title="Resultados agrupados por anuncio o creatividad">Anuncios / Creatividades <span class="help-icon">?</span></button>
+            <button class="tab-btn active" data-tab="campaigns">
+              Campañas <span class="help-icon" data-tooltip="Resultados agrupados por campaña.">?</span>
+            </button>
+            <button class="tab-btn" data-tab="adsets">
+              Adsets <span class="help-icon" data-tooltip="Resultados agrupados por conjunto de anuncios.">?</span>
+            </button>
+            <button class="tab-btn" data-tab="ads">
+              Anuncios / Creatividades <span class="help-icon" data-tooltip="Resultados agrupados por anuncio o creatividad.">?</span>
+            </button>
           </div>
 
           <div class="tab-content" id="tab-campaigns">

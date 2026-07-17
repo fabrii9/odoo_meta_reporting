@@ -90,7 +90,7 @@
     const renderDashboard = (data) => {
         const kpis = data.kpis || {};
 
-        // KPIs
+        // KPIs principales
         setKpi('kpi-spend', formatMoney(kpis.spend || 0));
         setKpi('kpi-impressions', formatNumber(kpis.impressions || 0));
         setKpi('kpi-clicks', formatNumber(kpis.clicks || 0));
@@ -99,10 +99,20 @@
         setKpi('kpi-reach', formatNumber(kpis.reach || 0));
         setKpi('kpi-frequency', formatNumber(kpis.frequency || 0));
 
+        // KPIs de conversión
+        const conv = data.conversion_kpis || {};
+        setKpi('kpi-purchases', formatNumber(conv.purchases || 0));
+        setKpi('kpi-purchase-value', formatMoney(conv.purchase_value || 0));
+        setKpi('kpi-roas', formatNumber(conv.roas || 0));
+        setKpi('kpi-cost-per-purchase', formatMoney(conv.cost_per_purchase || 0));
+
         // Funnel
         setText('funnel-impressions', formatNumber(kpis.impressions || 0));
         setText('funnel-clicks', formatNumber(kpis.clicks || 0));
         setText('funnel-ctr', 'CTR: ' + formatPercent(kpis.ctr || 0));
+        setText('funnel-purchases', formatNumber(conv.purchases || 0));
+        const purchaseRate = (kpis.clicks && conv.purchases) ? (conv.purchases / kpis.clicks) * 100 : 0;
+        setText('funnel-purchase-rate', 'Tasa: ' + formatPercent(purchaseRate));
 
         // Gráficos (cada uno protegido para no romper todo)
         safeRender('rendimiento diario', () => renderDailyChart(data.daily || []));
