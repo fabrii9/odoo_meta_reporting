@@ -77,6 +77,13 @@ class MetaAdsAccount(models.Model):
         help='Granularidad de los datos a extraer',
         tracking=True,
     )
+    sync_all_levels = fields.Boolean(
+        string='Sincronizar todos los niveles',
+        default=True,
+        help='Si está activado, sincroniza campaña, adset y anuncio. '
+             'Si está desactivado, usa solo el nivel seleccionado.',
+        tracking=True,
+    )
     log_ids = fields.One2many(
         'meta.ads.sync.log',
         'account_id',

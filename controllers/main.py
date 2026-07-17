@@ -80,19 +80,27 @@ class MetaAdsDashboardController(http.Controller):
 
             dataset = account.dataset_id
             job_model = request.env['meta.ads.sync.job'].sudo()
-            table_name = job_model._get_table_name(dataset, account.sync_level)
-            table_ref = f"{dataset.project_id}.{dataset.dataset_name}.{table_name}"
+
+            def table_ref(level):
+                table_name = job_model._get_table_name(dataset, level)
+                return f"{dataset.project_id}.{dataset.dataset_name}.{table_name}"
 
             service = BigQueryQueryService(
                 project_id=dataset.project_id,
                 credentials_json=dataset.credentials_json,
             )
 
-            kpis = service.get_kpis(table_ref, date_from, date_to, campaign_name)
-            daily = service.get_daily_series(table_ref, date_from, date_to, campaign_name)
-            campaigns = service.get_campaigns(table_ref, date_from, date_to)
-            ads = service.get_ads(table_ref, date_from, date_to, campaign_name)
-            placements = service.get_placements(table_ref, date_from, date_to, campaign_name)
+            # Consultar los 3 niveles (si existen las tablas)
+            campaign_ref = table_ref('campaign')
+            adset_ref = table_ref('adset')
+            ad_ref = table_ref('ad')
+
+            kpis = service.get_kpis(campaign_ref, date_from, date_to, campaign_name)
+            daily = service.get_daily_series(campaign_ref, date_from, date_to, campaign_name)
+            campaigns = service.get_campaigns(campaign_ref, date_from, date_to)
+            adsets = service.get_adsets(adset_ref, date_from, date_to, campaign_name)
+            ads = service.get_ads(ad_ref, date_from, date_to, campaign_name)
+            placements = service.get_placements(campaign_ref, date_from, date_to, campaign_name)
 
             def clean_value(v):
                 if v is None:
@@ -114,6 +122,7 @@ class MetaAdsDashboardController(http.Controller):
                 'kpis': clean_row(kpis),
                 'daily': [clean_row(r) for r in daily],
                 'campaigns': [clean_row(r) for r in campaigns],
+                'adsets': [clean_row(r) for r in adsets],
                 'ads': [clean_row(r) for r in ads],
                 'placements': [clean_row(r) for r in placements],
                 'filters': {

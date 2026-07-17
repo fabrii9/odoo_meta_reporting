@@ -110,6 +110,7 @@
 
         // Tablas
         renderTable('table-campaigns', data.campaigns || [], ['campaign_name', 'spend', 'impressions', 'clicks', 'ctr']);
+        renderTable('table-adsets', data.adsets || [], ['campaign_name', 'adset_name', 'spend', 'impressions', 'clicks', 'ctr']);
         renderTable('table-ads', data.ads || [], ['campaign_name', 'ad_name', 'spend', 'impressions', 'clicks', 'ctr']);
     };
 
@@ -242,6 +243,23 @@
         });
     };
 
+    // Tabs
+    const initTabs = () => {
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = btn.dataset.tab;
+                tabBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                const targetEl = document.getElementById('tab-' + target);
+                if (targetEl) targetEl.classList.remove('hidden');
+            });
+        });
+    };
+
     // Inicialización
     document.addEventListener('DOMContentLoaded', () => {
         console.log('[MetaDashboard] DOM ready. Chart.js loaded:', typeof Chart !== 'undefined');
@@ -255,6 +273,8 @@
         if (btnRefresh) {
             btnRefresh.addEventListener('click', fetchData);
         }
+
+        initTabs();
 
         if (accountSelect && accountSelect.value) {
             fetchData();

@@ -89,38 +89,60 @@
           </div>
         </div>
 
-        <!-- Tablas -->
-        <div class="card" title="Resultados agrupados por campaña.">
-          <h3>Campañas <span class="help-icon">?</span></h3>
-          <table class="data-table" id="table-campaigns">
-            <thead>
-              <tr>
-                <th>Nombre de campaña</th>
-                <th class="numeric">Gasto</th>
-                <th class="numeric">Impresiones</th>
-                <th class="numeric">Clics</th>
-                <th class="numeric">CTR</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
+        <!-- Tabs de niveles -->
+        <div class="card">
+          <div class="level-tabs">
+            <button class="tab-btn active" data-tab="campaigns" title="Resultados agrupados por campaña">Campañas <span class="help-icon">?</span></button>
+            <button class="tab-btn" data-tab="adsets" title="Resultados agrupados por conjunto de anuncios">Adsets <span class="help-icon">?</span></button>
+            <button class="tab-btn" data-tab="ads" title="Resultados agrupados por anuncio o creatividad">Anuncios / Creatividades <span class="help-icon">?</span></button>
+          </div>
 
-        <div class="card" title="Resultados agrupados por anuncio o creatividad.">
-          <h3>Anuncios / Creatividades <span class="help-icon">?</span></h3>
-          <table class="data-table" id="table-ads">
-            <thead>
-              <tr>
-                <th>Campaña</th>
-                <th>Nombre del anuncio</th>
-                <th class="numeric">Gasto</th>
-                <th class="numeric">Impresiones</th>
-                <th class="numeric">Clics</th>
-                <th class="numeric">CTR</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
+          <div class="tab-content" id="tab-campaigns">
+            <table class="data-table" id="table-campaigns">
+              <thead>
+                <tr>
+                  <th>Nombre de campaña</th>
+                  <th class="numeric">Gasto</th>
+                  <th class="numeric">Impresiones</th>
+                  <th class="numeric">Clics</th>
+                  <th class="numeric">CTR</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <div class="tab-content hidden" id="tab-adsets">
+            <table class="data-table" id="table-adsets">
+              <thead>
+                <tr>
+                  <th>Campaña</th>
+                  <th>Nombre del adset</th>
+                  <th class="numeric">Gasto</th>
+                  <th class="numeric">Impresiones</th>
+                  <th class="numeric">Clics</th>
+                  <th class="numeric">CTR</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <div class="tab-content hidden" id="tab-ads">
+            <table class="data-table" id="table-ads">
+              <thead>
+                <tr>
+                  <th>Campaña</th>
+                  <th>Nombre del anuncio</th>
+                  <th class="numeric">Gasto</th>
+                  <th class="numeric">Impresiones</th>
+                  <th class="numeric">Clics</th>
+                  <th class="numeric">CTR</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
       </div>
 

@@ -128,6 +128,38 @@ class BigQueryQueryService:
         ]
         return self._run_query(query, params)
 
+    def get_adsets(self, table_ref, date_from, date_to, campaign_name=None):
+        """Tabla agregada por adset (solo si la tabla tiene adset_name)."""
+        query = f"""
+            SELECT
+                campaign_name,
+                adset_name,
+                SUM(spend) AS spend,
+                SUM(impressions) AS impressions,
+                SUM(clicks) AS clicks,
+                SAFE_DIVIDE(SUM(clicks), SUM(impressions)) * 100 AS ctr
+            FROM `{table_ref}`
+            WHERE date BETWEEN @date_from AND @date_to
+        """
+        params = [
+            ('date_from', 'DATE', date_from),
+            ('date_to', 'DATE', date_to),
+        ]
+        if campaign_name:
+            query += " AND campaign_name = @campaign_name"
+            params.append(('campaign_name', 'STRING', campaign_name))
+        query += """
+            AND adset_name IS NOT NULL
+            GROUP BY campaign_name, adset_name
+            ORDER BY impressions DESC
+            LIMIT 100
+        """
+        try:
+            return self._run_query(query, params)
+        except BadRequest:
+            _logger.info('BigQuery: tabla %s no tiene adset_name, omitiendo adsets', table_ref)
+            return []
+
     def get_ads(self, table_ref, date_from, date_to, campaign_name=None):
         """Tabla agregada por anuncio (solo si la tabla tiene ad_name)."""
         query = f"""

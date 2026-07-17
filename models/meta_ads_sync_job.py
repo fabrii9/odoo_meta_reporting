@@ -102,10 +102,40 @@ class MetaAdsSyncJob(models.TransientModel):
 
     def _run_sync(self, account, date_from, date_to, sync_type='automatic'):
         """Ejecuta el flujo ETL completo para una cuenta y rango de fechas.
+        Si sync_all_levels está activado, sincroniza campaign, adset y ad.
         Retorna (True, None) si tuvo éxito, (False, error_message) en caso de error."""
         start_time = time.time()
         account.sudo().write({'sync_status': 'running'})
 
+        levels = ['campaign', 'adset', 'ad'] if account.sync_all_levels else [account.sync_level]
+        all_ok = True
+        last_error = None
+
+        for level in levels:
+            ok, error_msg = self._run_sync_single_level(
+                account=account,
+                level=level,
+                date_from=date_from,
+                date_to=date_to,
+                sync_type=sync_type,
+            )
+            if not ok:
+                all_ok = False
+                last_error = error_msg
+
+        if all_ok:
+            account.sudo().write({
+                'last_sync': fields.Datetime.now(),
+                'sync_status': 'success',
+            })
+            return True, None
+
+        account.sudo().write({'sync_status': 'error'})
+        return False, last_error or 'Error desconocido'
+
+    def _run_sync_single_level(self, account, level, date_from, date_to, sync_type):
+        """Sincroniza un solo nivel (campaign/adset/ad)."""
+        start_time = time.time()
         log_vals = {
             'account_id': account.id,
             'sync_date': fields.Datetime.now(),
@@ -113,7 +143,7 @@ class MetaAdsSyncJob(models.TransientModel):
             'records_processed': 0,
             'date_from': date_from,
             'date_to': date_to,
-            'level': account.sync_level,
+            'level': level,
             'sync_type': sync_type,
         }
         error_msg = None
@@ -122,31 +152,25 @@ class MetaAdsSyncJob(models.TransientModel):
             # 1) Extraer de Meta
             _logger.info(
                 'Meta Ads Sync [%s]: extrayendo %s - %s (nivel=%s)',
-                account.name, date_from, date_to, account.sync_level,
+                account.name, date_from, date_to, level,
             )
-            records = self._fetch_from_meta(account, date_from, date_to)
+            records = self._fetch_from_meta(account, date_from, date_to, level)
 
             if not records:
-                _logger.info('Meta Ads Sync [%s]: sin datos para el período.', account.name)
+                _logger.info('Meta Ads Sync [%s]: sin datos para el período (nivel=%s).', account.name, level)
                 log_vals['status'] = 'success'
                 log_vals['records_processed'] = 0
             else:
                 # 2) Cargar en BigQuery
                 _logger.info(
-                    'Meta Ads Sync [%s]: insertando %s registros en BigQuery',
-                    account.name, len(records),
+                    'Meta Ads Sync [%s]: insertando %s registros en BigQuery (nivel=%s)',
+                    account.name, len(records), level,
                 )
-                self._upsert_to_bigquery(account, records, date_from, date_to)
+                self._upsert_to_bigquery(account, records, date_from, date_to, level)
                 log_vals['records_processed'] = len(records)
 
-            account.sudo().write({
-                'last_sync': fields.Datetime.now(),
-                'sync_status': 'success',
-            })
-
         except Exception as e:
-            _logger.exception('Meta Ads Sync [%s]: error', account.name)
-            account.sudo().write({'sync_status': 'error'})
+            _logger.exception('Meta Ads Sync [%s]: error nivel %s', account.name, level)
             log_vals['status'] = 'error'
             error_msg = str(e)
             log_vals['error_message'] = error_msg
@@ -159,7 +183,7 @@ class MetaAdsSyncJob(models.TransientModel):
             return False, error_msg
         return True, None
 
-    def _fetch_from_meta(self, account, date_from, date_to):
+    def _fetch_from_meta(self, account, date_from, date_to, level):
         """Llama al servicio de Meta y retorna registros normalizados."""
         from ..services.meta_api_service import MetaApiService
         service = MetaApiService(
@@ -171,10 +195,10 @@ class MetaAdsSyncJob(models.TransientModel):
             account_id=account._get_clean_account_id(),
             date_from=date_from,
             date_to=date_to,
-            level=account.sync_level,
+            level=level,
         )
 
-    def _upsert_to_bigquery(self, account, records, date_from, date_to):
+    def _upsert_to_bigquery(self, account, records, date_from, date_to, level):
         """Estrategia DELETE + INSERT en BigQuery."""
         from ..services.bigquery_service import BigQueryService
         dataset = account.dataset_id
@@ -182,13 +206,13 @@ class MetaAdsSyncJob(models.TransientModel):
             project_id=dataset.project_id,
             credentials_json=dataset.credentials_json,
         )
-        table_name = self._get_table_name(dataset, account.sync_level)
+        table_name = self._get_table_name(dataset, level)
 
         # Asegurar que exista la tabla
         service.ensure_table(
             dataset_name=dataset.dataset_name,
             table_name=table_name,
-            level=account.sync_level,
+            level=level,
         )
 
         # Upsert por cada fecha dentro del rango
