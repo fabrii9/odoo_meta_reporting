@@ -162,7 +162,7 @@ class BigQueryQueryService:
             return []
 
     def get_placements(self, table_ref, date_from, date_to, campaign_name=None):
-        """Distribución por publisher_platform."""
+        """Distribución por publisher_platform. Fallback si la columna aun no existe."""
         query = f"""
             SELECT
                 COALESCE(publisher_platform, 'Desconocido') AS publisher_platform,
@@ -184,4 +184,22 @@ class BigQueryQueryService:
             ORDER BY impressions DESC
             LIMIT 50
         """
-        return self._run_query(query, params)
+        try:
+            return self._run_query(query, params)
+        except BadRequest as e:
+            if 'publisher_platform' not in str(e):
+                raise
+            # Fallback: tabla aun no tiene la columna, devolvemos un solo bucket agregado
+            _logger.warning('BigQuery: columna publisher_platform no existe en %s, usando fallback', table_ref)
+            fallback_query = f"""
+                SELECT
+                    'Desconocido' AS publisher_platform,
+                    SUM(spend) AS spend,
+                    SUM(impressions) AS impressions,
+                    SUM(clicks) AS clicks
+                FROM `{table_ref}`
+                WHERE date BETWEEN @date_from AND @date_to
+            """
+            if campaign_name:
+                fallback_query += " AND campaign_name = @campaign_name"
+            return self._run_query(fallback_query, params)
