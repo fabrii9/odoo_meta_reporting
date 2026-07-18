@@ -27,6 +27,7 @@
         'python': [
             'facebook_business',
             'google.cloud.bigquery',
+            'requests',
         ],
     },
     'installable': True,
