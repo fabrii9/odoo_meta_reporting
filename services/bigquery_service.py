@@ -54,21 +54,40 @@ class BigQueryService:
             dataset.location = "US"
             self.client.create_dataset(dataset, exists_ok=True)
 
-        # Crear tabla si no existe
-        try:
-            self.client.get_table(table_ref)
-        except NotFound:
-            _logger.info('BigQuery: creando tabla %s', table_ref)
-            schema = self._build_schema(level)
-            table = bigquery.Table(table_ref, schema=schema)
-            # Particionar por date para optimizar DELETE+INSERT
-            table.time_partitioning = bigquery.TimePartitioning(
-                type_=bigquery.TimePartitioningType.DAY,
-                field='date',
+        # Crear tabla con DDL (más robusto que la API)
+        schema = self._build_schema(level)
+        columns_sql = ', '.join(
+            f"{field.name} {self._bq_type(field.field_type)}"
+            for field in schema
+        )
+        ddl = f"""
+            CREATE TABLE IF NOT EXISTS `{table_ref}` (
+                {columns_sql}
             )
-            self.client.create_table(table, exists_ok=True)
+            PARTITION BY DATE(date)
+        """
+        try:
+            _logger.info('BigQuery: asegurando tabla %s', table_ref)
+            job = self.client.query(ddl)
+            job.result()
+        except BadRequest as e:
+            _logger.error('BigQuery DDL error: %s', e)
+            raise
 
         return True
+
+    @staticmethod
+    def _bq_type(field_type):
+        """Mapea tipos de SchemaField a tipos de BigQuery SQL."""
+        mapping = {
+            'DATE': 'DATE',
+            'STRING': 'STRING',
+            'FLOAT64': 'FLOAT64',
+            'INT64': 'INT64',
+            'BOOLEAN': 'BOOL',
+            'TIMESTAMP': 'TIMESTAMP',
+        }
+        return mapping.get(field_type, 'STRING')
 
     def upsert_daily_data(self, dataset_name, table_name, date_str, records):
         """DELETE + INSERT para una fecha específica."""

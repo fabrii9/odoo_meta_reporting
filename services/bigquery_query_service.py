@@ -6,11 +6,12 @@ _logger = logging.getLogger(__name__)
 
 try:
     from google.cloud import bigquery
-    from google.api_core.exceptions import BadRequest
+    from google.api_core.exceptions import BadRequest, NotFound
 except Exception as e:  # pragma: no cover
     _logger.warning("google-cloud-bigquery no está instalado: %s", e)
     bigquery = None
     BadRequest = Exception
+    NotFound = Exception
 
 
 class BigQueryQueryService:
@@ -156,8 +157,8 @@ class BigQueryQueryService:
         """
         try:
             return self._run_query(query, params)
-        except BadRequest:
-            _logger.info('BigQuery: tabla %s no tiene adset_name, omitiendo adsets', table_ref)
+        except (BadRequest, NotFound):
+            _logger.info('BigQuery: tabla %s no existe o no tiene adset_name, omitiendo adsets', table_ref)
             return []
 
     def get_ads(self, table_ref, date_from, date_to, campaign_name=None):
@@ -188,9 +189,9 @@ class BigQueryQueryService:
         """
         try:
             return self._run_query(query, params)
-        except BadRequest:
-            # La tabla puede no tener campo ad_name (nivel campaign)
-            _logger.info('BigQuery: tabla %s no tiene ad_name, omitiendo ads', table_ref)
+        except (BadRequest, NotFound):
+            # La tabla puede no existir o no tener campo ad_name
+            _logger.info('BigQuery: tabla %s no existe o no tiene ad_name, omitiendo ads', table_ref)
             return []
 
     def get_conversion_kpis(self, table_ref, date_from, date_to, campaign_name=None):
@@ -261,10 +262,10 @@ class BigQueryQueryService:
         """
         try:
             return self._run_query(query, params)
-        except BadRequest as e:
+        except (BadRequest, NotFound) as e:
             if 'publisher_platform' not in str(e):
                 raise
-            # Fallback: tabla aun no tiene la columna, devolvemos un solo bucket agregado
+            # Fallback: tabla aun no tiene la columna o no existe, devolvemos un solo bucket agregado
             _logger.warning('BigQuery: columna publisher_platform no existe en %s, usando fallback', table_ref)
             fallback_query = f"""
                 SELECT
