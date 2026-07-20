@@ -64,7 +64,7 @@ class BigQueryService:
             CREATE TABLE IF NOT EXISTS `{table_ref}` (
                 {columns_sql}
             )
-            PARTITION BY DATE(date)
+            PARTITION BY date
         """
         try:
             _logger.info('BigQuery: asegurando tabla %s', table_ref)
