@@ -180,7 +180,7 @@
 
       <link rel="stylesheet" href="/odoo_meta_reporting/static/src/css/dashboard.css"/>
       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"/>
-      <script type="text/javascript" src="/odoo_meta_reporting/static/src/js/dashboard_v2.js"/>
+      <script type="text/javascript" src="/odoo_meta_reporting/static/src/js/dashboard.js?v=3"/>
     </t>
   </template>
 
