@@ -69,10 +69,22 @@
 
   <!-- ========== MENÚS ========== -->
 
+  <record id="action_meta_ads_dashboard" model="ir.actions.act_url">
+    <field name="name">Meta Ads Dashboard</field>
+    <field name="url">/meta_reporting/dashboard</field>
+    <field name="target">self</field>
+  </record>
+
   <menuitem id="menu_meta_reporting_root"
             name="Meta Reporting"
             sequence="50"
             web_icon="odoo_meta_reporting,static/description/icon.png"/>
+
+  <menuitem id="menu_meta_reporting_dashboard"
+            name="Dashboard"
+            parent="menu_meta_reporting_root"
+            action="action_meta_ads_dashboard"
+            sequence="5"/>
 
   <menuitem id="menu_meta_reporting_accounts"
             name="Cuentas"

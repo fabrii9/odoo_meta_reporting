@@ -34,6 +34,14 @@
                   type="object"
                   string="Test Conexión Meta"
                   icon="fa-plug"/>
+          <button name="action_generate_long_lived_token"
+                  type="object"
+                  string="Generar Token Larga Duración"
+                  icon="fa-key"/>
+          <button name="action_refresh_token"
+                  type="object"
+                  string="Renovar Token"
+                  icon="fa-refresh"/>
           <button name="action_view_logs"
                   type="object"
                   string="Ver Logs"
@@ -49,13 +57,18 @@
               <field name="ad_account_id" required="1"/>
               <field name="business_id"/>
               <field name="dataset_id" required="1" options="{'no_create': True}"/>
-              <field name="sync_level" required="1"/>
+              <field name="sync_level" required="1" attrs="{'invisible': [('sync_all_levels', '=', True)]}"/>
+              <field name="sync_all_levels"/>
               <field name="is_active"/>
             </group>
             <group string="Credenciales Meta">
               <field name="access_token" password="True" required="1"/>
               <field name="app_id" required="1"/>
               <field name="app_secret" password="True" required="1"/>
+            </group>
+            <group string="Estado del Token">
+              <field name="token_status" readonly="1"/>
+              <field name="token_expires_at" readonly="1"/>
             </group>
           </group>
           <group>
