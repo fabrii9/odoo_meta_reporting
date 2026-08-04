@@ -123,6 +123,20 @@
     color: #1c1e21;
 }
 
+.kpi-delta {
+    font-size: 12px;
+    margin-top: 6px;
+    min-height: 14px;
+}
+
+.kpi-delta.delta-good {
+    color: #42b72a;
+}
+
+.kpi-delta.delta-bad {
+    color: #d93025;
+}
+
 /* Cards y gráficos */
 .card {
     background: #fff;
@@ -296,17 +310,21 @@
 .funnel-step {
     background: #1877f2;
     color: #fff;
-    padding: 16px 24px;
+    padding: 14px 24px;
     border-radius: 8px;
-    min-width: 280px;
+    min-width: 320px;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.funnel-step:nth-child(4) {
-    background: #42b72a;
-}
+/* Gradiente de colores a lo largo del embudo */
+.funnel-step-0 { background: #1877f2; }
+.funnel-step-1 { background: #0e9bd8; }
+.funnel-step-2 { background: #00bcd4; }
+.funnel-step-3 { background: #8bc34a; }
+.funnel-step-4 { background: #42b72a; }
+.funnel-step-5 { background: #2e7d32; }
 
 .funnel-label {
     font-size: 13px;
@@ -326,4 +344,56 @@
 .funnel-arrow {
     font-size: 20px;
     color: #8a8d91;
+}
+
+/* Galería de creatividades */
+.creatives-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.creative-card {
+    background: #fff;
+    border: 1px solid #e4e6eb;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.creative-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    background: #f0f2f5;
+}
+
+.creative-body {
+    padding: 10px 12px;
+}
+
+.creative-name {
+    font-weight: 600;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.creative-campaign {
+    font-size: 12px;
+    color: #65676b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 8px;
+}
+
+.creative-metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    font-size: 12px;
+    color: #65676b;
 }

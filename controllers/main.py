@@ -96,9 +96,23 @@ class MetaAdsDashboardController(http.Controller):
             adset_ref = table_ref('adset')
             ad_ref = table_ref('ad')
 
+            # Período anterior (misma duración, inmediatamente antes) para deltas
+            from datetime import datetime as dt
+            d_from = dt.strptime(date_from, '%Y-%m-%d').date()
+            d_to = dt.strptime(date_to, '%Y-%m-%d').date()
+            period_days = (d_to - d_from).days + 1
+            prev_to = d_from - timedelta(days=1)
+            prev_from = prev_to - timedelta(days=period_days - 1)
+            prev_date_from = prev_from.strftime('%Y-%m-%d')
+            prev_date_to = prev_to.strftime('%Y-%m-%d')
+
             kpis = service.get_kpis(campaign_ref, date_from, date_to, campaign_name)
+            kpis_prev = service.get_kpis(campaign_ref, prev_date_from, prev_date_to, campaign_name)
             conversion_kpis = service.get_conversion_kpis(campaign_ref, date_from, date_to, campaign_name)
+            conversion_kpis_prev = service.get_conversion_kpis(campaign_ref, prev_date_from, prev_date_to, campaign_name)
             daily = service.get_daily_series(campaign_ref, date_from, date_to, campaign_name)
+            ratio_daily = service.get_ratio_series(campaign_ref, date_from, date_to, campaign_name)
+            funnel = service.get_funnel(campaign_ref, date_from, date_to, campaign_name)
             campaigns = service.get_campaigns(campaign_ref, date_from, date_to)
             adsets = service.get_adsets(adset_ref, date_from, date_to, campaign_name)
             ads = service.get_ads(ad_ref, date_from, date_to, campaign_name)
@@ -122,8 +136,12 @@ class MetaAdsDashboardController(http.Controller):
             result = {
                 'success': True,
                 'kpis': clean_row(kpis),
+                'kpis_prev': clean_row(kpis_prev),
                 'conversion_kpis': clean_row(conversion_kpis),
+                'conversion_kpis_prev': clean_row(conversion_kpis_prev),
                 'daily': [clean_row(r) for r in daily],
+                'ratio_daily': [clean_row(r) for r in ratio_daily],
+                'funnel': [clean_row(r) for r in funnel],
                 'campaigns': [clean_row(r) for r in campaigns],
                 'adsets': [clean_row(r) for r in adsets],
                 'ads': [clean_row(r) for r in ads],

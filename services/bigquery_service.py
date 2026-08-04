@@ -54,9 +54,19 @@ class BigQueryService:
             dataset.location = "US"
             self.client.create_dataset(dataset, exists_ok=True)
 
-        # Crear tabla si no existe
+        # Crear tabla si no existe; si existe, agregar columnas faltantes
         try:
-            self.client.get_table(table_ref)
+            table = self.client.get_table(table_ref)
+            schema = self._build_schema(level)
+            existing = {field.name for field in table.schema}
+            missing = [field for field in schema if field.name not in existing]
+            if missing:
+                _logger.info(
+                    'BigQuery: agregando %s columnas nuevas a %s: %s',
+                    len(missing), table_ref, [f.name for f in missing],
+                )
+                table.schema = list(table.schema) + missing
+                self.client.update_table(table, ['schema'])
         except NotFound:
             _logger.info('BigQuery: creando tabla %s', table_ref)
             schema = self._build_schema(level)
@@ -128,7 +138,16 @@ class BigQueryService:
             SchemaField("frequency", "FLOAT64"),
             SchemaField("purchase_roas", "STRING"),
             SchemaField("actions", "STRING"),
+            SchemaField("action_values", "STRING"),
             SchemaField("cost_per_action_type", "STRING"),
+            SchemaField("inline_link_clicks", "INT64"),
+            SchemaField("inline_link_click_ctr", "FLOAT64"),
+            SchemaField("outbound_clicks", "INT64"),
+            SchemaField("video_play_actions", "STRING"),
+            SchemaField("video_p25_watched_actions", "STRING"),
+            SchemaField("video_p50_watched_actions", "STRING"),
+            SchemaField("video_p75_watched_actions", "STRING"),
+            SchemaField("video_p100_watched_actions", "STRING"),
         ]
 
         if level in ('adset', 'ad'):
@@ -138,10 +157,14 @@ class BigQueryService:
         if level == 'ad':
             base.insert(5, SchemaField("ad_id", "STRING"))
             base.insert(6, SchemaField("ad_name", "STRING"))
-            # Creative data para mostrar imágenes en Looker Studio
+            # Creative data para mostrar imágenes en el dashboard
             base.append(SchemaField("thumbnail_url", "STRING"))
             base.append(SchemaField("image_url", "STRING"))
             base.append(SchemaField("creative_type", "STRING"))
             base.append(SchemaField("creative_name", "STRING"))
+            # Rankings de calidad (solo disponibles a nivel anuncio)
+            base.append(SchemaField("quality_ranking", "STRING"))
+            base.append(SchemaField("engagement_rate_ranking", "STRING"))
+            base.append(SchemaField("conversion_rate_ranking", "STRING"))
 
         return base

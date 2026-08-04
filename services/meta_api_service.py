@@ -89,10 +89,27 @@ class MetaApiService:
             AdsInsights.Field.reach,
             AdsInsights.Field.frequency,
             AdsInsights.Field.actions,
+            AdsInsights.Field.action_values,
             AdsInsights.Field.purchase_roas,
             AdsInsights.Field.cost_per_action_type,
+            AdsInsights.Field.inline_link_clicks,
+            AdsInsights.Field.inline_link_click_ctr,
+            AdsInsights.Field.outbound_clicks,
+            AdsInsights.Field.video_play_actions,
+            AdsInsights.Field.video_p25_watched_actions,
+            AdsInsights.Field.video_p50_watched_actions,
+            AdsInsights.Field.video_p75_watched_actions,
+            AdsInsights.Field.video_p100_watched_actions,
             AdsInsights.Field.date_start,
         ]
+
+        # Rankings de calidad solo están disponibles a nivel anuncio
+        if level == 'ad':
+            fields += [
+                AdsInsights.Field.quality_ranking,
+                AdsInsights.Field.engagement_rate_ranking,
+                AdsInsights.Field.conversion_rate_ranking,
+            ]
 
         # Convertir fechas a string
         since = date_from.strftime('%Y-%m-%d') if hasattr(date_from, 'strftime') else str(date_from)
@@ -243,7 +260,26 @@ class MetaApiService:
             # Conversiones (se serializan como JSON string para BigQuery)
             row['purchase_roas'] = self._serialize_actions(insight.get('purchase_roas'))
             row['actions'] = self._serialize_actions(insight.get('actions'))
+            row['action_values'] = self._serialize_actions(insight.get('action_values'))
             row['cost_per_action_type'] = self._serialize_actions(insight.get('cost_per_action_type'))
+
+            # Clics de enlace y salientes
+            row['inline_link_clicks'] = self._to_int(insight.get('inline_link_clicks'))
+            row['inline_link_click_ctr'] = self._to_float(insight.get('inline_link_click_ctr'))
+            row['outbound_clicks'] = self._to_int(insight.get('outbound_clicks'))
+
+            # Video (listas tipo actions, se serializan como JSON)
+            row['video_play_actions'] = self._serialize_actions(insight.get('video_play_actions'))
+            row['video_p25_watched_actions'] = self._serialize_actions(insight.get('video_p25_watched_actions'))
+            row['video_p50_watched_actions'] = self._serialize_actions(insight.get('video_p50_watched_actions'))
+            row['video_p75_watched_actions'] = self._serialize_actions(insight.get('video_p75_watched_actions'))
+            row['video_p100_watched_actions'] = self._serialize_actions(insight.get('video_p100_watched_actions'))
+
+            # Rankings de calidad (solo nivel anuncio)
+            if level == 'ad':
+                row['quality_ranking'] = insight.get('quality_ranking') or ''
+                row['engagement_rate_ranking'] = insight.get('engagement_rate_ranking') or ''
+                row['conversion_rate_ranking'] = insight.get('conversion_rate_ranking') or ''
 
             # Filtrar campos vacíos según nivel para mantener schema limpio
             if level == 'campaign':

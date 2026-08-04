@@ -33,30 +33,42 @@
           <div class="kpi-card">
             <div class="kpi-label">Gasto total <span class="help-icon" data-tooltip="Gasto total en publicidad durante el período seleccionado.">?</span></div>
             <div class="kpi-value" id="kpi-spend">-</div>
+            <div class="kpi-delta" id="delta-spend"></div>
           </div>
           <div class="kpi-card">
             <div class="kpi-label">Impresiones <span class="help-icon" data-tooltip="Número de veces que se mostraron tus anuncios.">?</span></div>
             <div class="kpi-value" id="kpi-impressions">-</div>
+            <div class="kpi-delta" id="delta-impressions"></div>
           </div>
           <div class="kpi-card">
             <div class="kpi-label">Clics en enlace <span class="help-icon" data-tooltip="Clics que hicieron en el enlace de tu anuncio.">?</span></div>
             <div class="kpi-value" id="kpi-clicks">-</div>
+            <div class="kpi-delta" id="delta-clicks"></div>
           </div>
           <div class="kpi-card">
             <div class="kpi-label">CTR <span class="help-icon" data-tooltip="Click-Through Rate: porcentaje de impresiones que terminaron en clic.">?</span></div>
             <div class="kpi-value" id="kpi-ctr">-</div>
+            <div class="kpi-delta" id="delta-ctr"></div>
           </div>
           <div class="kpi-card">
             <div class="kpi-label">CPC <span class="help-icon" data-tooltip="Costo por clic: cuánto pagás en promedio por cada clic.">?</span></div>
             <div class="kpi-value" id="kpi-cpc">-</div>
+            <div class="kpi-delta" id="delta-cpc"></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">CPM <span class="help-icon" data-tooltip="Costo por mil impresiones: cuánto pagás por cada 1000 veces que se muestra tu anuncio.">?</span></div>
+            <div class="kpi-value" id="kpi-cpm">-</div>
+            <div class="kpi-delta" id="delta-cpm"></div>
           </div>
           <div class="kpi-card">
             <div class="kpi-label">Alcance <span class="help-icon" data-tooltip="Número de personas únicas que vieron tus anuncios.">?</span></div>
             <div class="kpi-value" id="kpi-reach">-</div>
+            <div class="kpi-delta" id="delta-reach"></div>
           </div>
           <div class="kpi-card">
             <div class="kpi-label">Frecuencia <span class="help-icon" data-tooltip="Promedio de veces que cada persona vio tus anuncios.">?</span></div>
             <div class="kpi-value" id="kpi-frequency">-</div>
+            <div class="kpi-delta" id="delta-frequency"></div>
           </div>
         </div>
 
@@ -65,6 +77,7 @@
           <div class="kpi-card">
             <div class="kpi-label">Compras <span class="help-icon" data-tooltip="Número de compras atribuidas a tus anuncios (desde acciones de Meta).">?</span></div>
             <div class="kpi-value" id="kpi-purchases">-</div>
+            <div class="kpi-delta" id="delta-purchases"></div>
           </div>
           <div class="kpi-card">
             <div class="kpi-label">Valor de compra <span class="help-icon" data-tooltip="Valor monetario total de las compras atribuidas.">?</span></div>
@@ -73,6 +86,7 @@
           <div class="kpi-card">
             <div class="kpi-label">ROAS <span class="help-icon" data-tooltip="Return on Ad Spend: retorno sobre inversión publicitaria (valor de compra / gasto).">?</span></div>
             <div class="kpi-value" id="kpi-roas">-</div>
+            <div class="kpi-delta" id="delta-roas"></div>
           </div>
           <div class="kpi-card">
             <div class="kpi-label">Costo por compra <span class="help-icon" data-tooltip="Gasto promedio para conseguir una compra.">?</span></div>
@@ -92,27 +106,40 @@
           </div>
         </div>
 
+        <!-- Ratios y ROAS -->
+        <div class="chart-grid">
+          <div class="card chart-card">
+            <h3>Ratios diarios <span class="help-icon" data-tooltip="Evolución diaria de CTR (eje izquierdo), CPC y CPM (eje derecho).">?</span></h3>
+            <canvas id="chart-ratios"></canvas>
+          </div>
+          <div class="card chart-card">
+            <h3>ROAS diario <span class="help-icon" data-tooltip="Retorno sobre inversión publicitaria por día, ponderado por gasto.">?</span></h3>
+            <canvas id="chart-roas"></canvas>
+          </div>
+        </div>
+
+        <!-- Rankings -->
+        <div class="chart-grid">
+          <div class="card chart-card">
+            <h3>Top 5 campañas por ROAS <span class="help-icon" data-tooltip="Campañas con mejor retorno sobre inversión en el período.">?</span></h3>
+            <canvas id="chart-top-roas"></canvas>
+          </div>
+          <div class="card chart-card">
+            <h3>Gasto vs Revenue por campaña <span class="help-icon" data-tooltip="Comparación de gasto contra valor generado (gasto × ROAS) por campaña.">?</span></h3>
+            <canvas id="chart-spend-revenue"></canvas>
+          </div>
+        </div>
+
         <!-- Embudo -->
         <div class="card funnel-card">
-          <h3>Embudo <span class="help-icon" data-tooltip="Embudo de conversión: de impresiones a clics y compras.">?</span></h3>
-          <div class="funnel" id="funnel">
-            <div class="funnel-step">
-              <span class="funnel-label">Impresiones</span>
-              <span class="funnel-value" id="funnel-impressions">-</span>
-            </div>
-            <div class="funnel-arrow">↓</div>
-            <div class="funnel-step">
-              <span class="funnel-label">Clics en enlace</span>
-              <span class="funnel-value" id="funnel-clicks">-</span>
-              <span class="funnel-rate" id="funnel-ctr">-</span>
-            </div>
-            <div class="funnel-arrow">↓</div>
-            <div class="funnel-step">
-              <span class="funnel-label">Compras</span>
-              <span class="funnel-value" id="funnel-purchases">-</span>
-              <span class="funnel-rate" id="funnel-purchase-rate">-</span>
-            </div>
-          </div>
+          <h3>Embudo de conversión <span class="help-icon" data-tooltip="De impresiones a compras, con tasa de conversión y costo por paso.">?</span></h3>
+          <div class="funnel" id="funnel"></div>
+        </div>
+
+        <!-- Galería de creatividades -->
+        <div class="card">
+          <h3>Creatividades <span class="help-icon" data-tooltip="Anuncios con su imagen y métricas principales. Requiere sincronización a nivel anuncio.">?</span></h3>
+          <div class="creatives-grid" id="creatives-grid"></div>
         </div>
 
         <!-- Tabs de niveles -->
@@ -139,6 +166,7 @@
                   <th class="numeric">Impresiones</th>
                   <th class="numeric">Clics</th>
                   <th class="numeric">CTR</th>
+                  <th class="numeric">ROAS</th>
                 </tr>
               </thead>
               <tbody></tbody>
@@ -171,6 +199,7 @@
                   <th class="numeric">Impresiones</th>
                   <th class="numeric">Clics</th>
                   <th class="numeric">CTR</th>
+                  <th class="numeric">Compras</th>
                 </tr>
               </thead>
               <tbody></tbody>
@@ -179,9 +208,9 @@
         </div>
       </div>
 
-      <link rel="stylesheet" href="/odoo_meta_reporting/static/src/css/dashboard.css"/>
+      <link rel="stylesheet" href="/odoo_meta_reporting/static/src/css/dashboard.css?v=2"/>
       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"/>
-      <script type="text/javascript" src="/odoo_meta_reporting/static/src/js/dashboard.js?v=4"/>
+      <script type="text/javascript" src="/odoo_meta_reporting/static/src/js/dashboard.js?v=5"/>
     </t>
   </template>
 
