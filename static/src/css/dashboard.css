@@ -347,6 +347,29 @@
 }
 
 /* Galería de creatividades */
+.creatives-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.creatives-header h3 {
+    margin: 0;
+}
+
+.creatives-summary {
+    font-size: 13px;
+    color: #1c1e21;
+    background: #e7f0fe;
+    border: 1px solid #bcd3f7;
+    padding: 8px 14px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
 .creatives-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));

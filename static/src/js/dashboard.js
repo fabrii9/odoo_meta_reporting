@@ -540,14 +540,50 @@
         if (!grid) return;
         grid.innerHTML = '';
 
+        const summary = document.getElementById('creatives-summary');
+        const searchInput = document.getElementById('filter-ad-search');
+        const term = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
         const withImage = ads.filter(a => a.thumbnail_url || a.image_url);
+        const filtered = term
+            ? withImage.filter(a =>
+                (a.ad_name || '').toLowerCase().includes(term) ||
+                (a.campaign_name || '').toLowerCase().includes(term))
+            : withImage;
+
+        // Resumen de lo filtrado
+        if (summary) {
+            if (term) {
+                const totals = filtered.reduce((acc, a) => {
+                    acc.spend += a.spend || 0;
+                    acc.impressions += a.impressions || 0;
+                    acc.clicks += a.clicks || 0;
+                    acc.purchases += a.purchases || 0;
+                    return acc;
+                }, { spend: 0, impressions: 0, clicks: 0, purchases: 0 });
+                summary.innerHTML = 'Filtro "<b>' + term + '</b>": <b>' + filtered.length + '</b> de ' + withImage.length + ' anuncios' +
+                    ' · Gasto: <b>' + formatMoney(totals.spend) + '</b>' +
+                    ' · Imp: <b>' + formatNumber(totals.impressions) + '</b>' +
+                    ' · Clics: <b>' + formatNumber(totals.clicks) + '</b>' +
+                    (totals.purchases ? ' · Compras: <b>' + formatNumber(totals.purchases) + '</b>' : '');
+                summary.classList.remove('hidden');
+            } else {
+                summary.textContent = '';
+                summary.classList.add('hidden');
+            }
+        }
+
         if (!withImage.length) {
             grid.innerHTML = '<div style="color:#65676b;padding:12px;">No hay creatividades con imagen. Sincronizá a nivel anuncio (Sincronizar todos los niveles) para traer los thumbnails.</div>';
             return;
         }
+        if (!filtered.length) {
+            grid.innerHTML = '<div style="color:#65676b;padding:12px;">Ningún anuncio coincide con "<b>' + term + '</b>".</div>';
+            return;
+        }
 
         // Activos primero, luego por gasto descendente
-        const sorted = withImage.slice().sort((a, b) => {
+        const sorted = filtered.slice().sort((a, b) => {
             const aActive = (a.ad_status === 'ACTIVE') ? 0 : 1;
             const bActive = (b.ad_status === 'ACTIVE') ? 0 : 1;
             if (aActive !== bActive) return aActive - bActive;
@@ -689,6 +725,15 @@
         const btnDownload = document.getElementById('btn-download');
         if (btnDownload) {
             btnDownload.addEventListener('click', exportCSV);
+        }
+
+        const adSearch = document.getElementById('filter-ad-search');
+        if (adSearch) {
+            adSearch.addEventListener('input', () => {
+                if (lastData) {
+                    renderCreatives(lastData.ads || []);
+                }
+            });
         }
 
         initTabs();

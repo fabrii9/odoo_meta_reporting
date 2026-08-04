@@ -138,7 +138,11 @@
 
         <!-- Galería de creatividades -->
         <div class="card">
-          <h3>Creatividades <span class="help-icon" data-tooltip="Anuncios con su imagen y métricas. Los activos aparecen primero, con su estado identificado.">?</span></h3>
+          <div class="creatives-header">
+            <h3>Creatividades <span class="help-icon" data-tooltip="Anuncios con su imagen y métricas. Los activos aparecen primero, con su estado identificado.">?</span></h3>
+            <input id="filter-ad-search" type="text" class="filter-control" placeholder="Filtrar anuncios por palabra..." title="Filtra las creatividades por nombre de anuncio o campaña"/>
+          </div>
+          <div class="creatives-summary" id="creatives-summary"></div>
           <div class="creatives-grid" id="creatives-grid"></div>
         </div>
 
@@ -208,9 +212,9 @@
         </div>
       </div>
 
-      <link rel="stylesheet" href="/odoo_meta_reporting/static/src/css/dashboard.css?v=3"/>
+      <link rel="stylesheet" href="/odoo_meta_reporting/static/src/css/dashboard.css?v=4"/>
       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"/>
-      <script type="text/javascript" src="/odoo_meta_reporting/static/src/js/dashboard.js?v=6"/>
+      <script type="text/javascript" src="/odoo_meta_reporting/static/src/js/dashboard.js?v=7"/>
     </t>
   </template>
 
