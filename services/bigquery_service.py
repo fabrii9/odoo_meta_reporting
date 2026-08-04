@@ -61,11 +61,7 @@ class BigQueryService:
             _logger.info('BigQuery: creando tabla %s', table_ref)
             schema = self._build_schema(level)
             table = bigquery.Table(table_ref, schema=schema)
-            # Particionar por date para optimizar DELETE+INSERT
-            table.time_partitioning = bigquery.TimePartitioning(
-                type_=bigquery.TimePartitioningType.DAY,
-                field='date',
-            )
+            # Sin partición para compatibilidad con DML queries simples
             self.client.create_table(table, exists_ok=True)
 
         return True
@@ -129,5 +125,10 @@ class BigQueryService:
         if level == 'ad':
             base.insert(5, SchemaField("ad_id", "STRING"))
             base.insert(6, SchemaField("ad_name", "STRING"))
+            # Creative data para mostrar imágenes en Looker Studio
+            base.append(SchemaField("thumbnail_url", "STRING"))
+            base.append(SchemaField("image_url", "STRING"))
+            base.append(SchemaField("creative_type", "STRING"))
+            base.append(SchemaField("creative_name", "STRING"))
 
         return base

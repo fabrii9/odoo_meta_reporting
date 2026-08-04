@@ -3,6 +3,7 @@ import logging
 import time
 import hmac
 import hashlib
+import json
 from datetime import datetime, timedelta
 
 _logger = logging.getLogger(__name__)
@@ -112,7 +113,59 @@ class MetaApiService:
 
         insights = self._fetch_with_retry(account, fields, params)
         records = self._normalize_insights(insights, level)
+
+        # Si es nivel 'ad', enriquecer con creative data (imágenes)
+        if level == 'ad' and records:
+            creative_map = self._fetch_creative_data(account_id, [r['ad_id'] for r in records if r.get('ad_id')])
+            for record in records:
+                ad_id = record.get('ad_id')
+                if ad_id and ad_id in creative_map:
+                    record.update(creative_map[ad_id])
+
         return records
+
+    def _fetch_creative_data(self, account_id, ad_ids):
+        """
+        Obtiene creative data (thumbnails, imágenes) para una lista de ad_ids.
+        Retorna dict {ad_id: {thumbnail_url, image_url, creative_type}}.
+        """
+        if not ad_ids:
+            return {}
+
+        # Eliminar duplicados y vacíos
+        unique_ids = list(set([aid for aid in ad_ids if aid]))
+        if not unique_ids:
+            return {}
+
+        account = AdAccount(f'act_{account_id}')
+        creative_map = {}
+
+        # La API de Meta permite obtener múltiples ads en una llamada
+        # Usamos el endpoint /ads con filtro por IDs
+        try:
+            params = {
+                'fields': 'id,name,creative{id,name,thumbnail_url,image_url,video_id,object_type}',
+                'filtering': json.dumps([{'field': 'id', 'operator': 'IN', 'value': unique_ids}]),
+                'limit': len(unique_ids) + 10,
+            }
+            if self.appsecret_proof:
+                params['appsecret_proof'] = self.appsecret_proof
+
+            ads = account.get_ads(params=params)
+            for ad in ads:
+                ad_id = ad.get('id')
+                creative = ad.get('creative', {})
+                if creative:
+                    creative_map[ad_id] = {
+                        'thumbnail_url': creative.get('thumbnail_url'),
+                        'image_url': creative.get('image_url'),
+                        'creative_type': creative.get('object_type') or 'image',
+                        'creative_name': creative.get('name'),
+                    }
+        except Exception as e:
+            _logger.warning('No se pudo obtener creative data: %s', e)
+
+        return creative_map
 
     def _fetch_with_retry(self, account, fields, params, max_retries=5):
         """Ejecuta get_insights con backoff exponencial ante rate limits."""
@@ -226,7 +279,6 @@ class MetaApiService:
     @staticmethod
     def _serialize_actions(actions):
         """Serializa lista de acciones a string JSON para BigQuery."""
-        import json
         if not actions:
             return None
         if isinstance(actions, list):
