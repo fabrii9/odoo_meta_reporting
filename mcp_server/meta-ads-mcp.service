@@ -1,0 +1,21 @@
+[Unit]
+Description=MCP Server - Meta Ads Reporting (BigQuery)
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/production/printemps/odoo_meta_reporting/mcp_server
+Environment=META_MCP_TRANSPORT=http
+Environment=META_MCP_HOST=127.0.0.1
+Environment=META_MCP_PORT=8100
+Environment=META_BQ_PROJECT_ID=printemps-para-precio-de-costo
+Environment=META_BQ_DATASET=meta_ads
+Environment=META_BQ_TABLE_PREFIX=daily_
+Environment=META_BQ_CREDENTIALS_FILE=/home/production/meta-mcp/bq-credentials.json
+ExecStart=/home/production/meta-mcp/venv/bin/python /home/production/printemps/odoo_meta_reporting/mcp_server/mcp_server.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
