@@ -120,6 +120,10 @@ class MetaApiService:
             'time_increment': 1,
             'time_range': {'since': since, 'until': until},
         }
+        # Breakdown por plataforma (Facebook, Instagram, etc.) a nivel campaña:
+        # es lo que alimenta el gráfico "Ubicación" del dashboard
+        if level == 'campaign':
+            params['breakdowns'] = ['publisher_platform']
         if self.appsecret_proof:
             params['appsecret_proof'] = self.appsecret_proof
 
@@ -161,7 +165,7 @@ class MetaApiService:
         # Usamos el endpoint /ads con filtro por IDs
         try:
             params = {
-                'fields': 'id,name,creative{id,name,thumbnail_url,image_url,video_id,object_type}',
+                'fields': 'id,name,effective_status,creative{id,name,thumbnail_url,image_url,video_id,object_type}',
                 'filtering': json.dumps([{'field': 'id', 'operator': 'IN', 'value': unique_ids}]),
                 'limit': len(unique_ids) + 10,
             }
@@ -178,6 +182,7 @@ class MetaApiService:
                         'image_url': creative.get('image_url'),
                         'creative_type': creative.get('object_type') or 'image',
                         'creative_name': creative.get('name'),
+                        'ad_status': ad.get('effective_status') or '',
                     }
         except Exception as e:
             _logger.warning('No se pudo obtener creative data: %s', e)
@@ -280,6 +285,10 @@ class MetaApiService:
                 row['quality_ranking'] = insight.get('quality_ranking') or ''
                 row['engagement_rate_ranking'] = insight.get('engagement_rate_ranking') or ''
                 row['conversion_rate_ranking'] = insight.get('conversion_rate_ranking') or ''
+
+            # Plataforma (solo nivel campaña, viene del breakdown)
+            if level == 'campaign':
+                row['publisher_platform'] = insight.get('publisher_platform') or ''
 
             # Filtrar campos vacíos según nivel para mantener schema limpio
             if level == 'campaign':

@@ -138,7 +138,7 @@
 
         <!-- Galería de creatividades -->
         <div class="card">
-          <h3>Creatividades <span class="help-icon" data-tooltip="Anuncios con su imagen y métricas principales. Requiere sincronización a nivel anuncio.">?</span></h3>
+          <h3>Creatividades <span class="help-icon" data-tooltip="Anuncios con su imagen y métricas. Los activos aparecen primero, con su estado identificado.">?</span></h3>
           <div class="creatives-grid" id="creatives-grid"></div>
         </div>
 
@@ -208,9 +208,9 @@
         </div>
       </div>
 
-      <link rel="stylesheet" href="/odoo_meta_reporting/static/src/css/dashboard.css?v=2"/>
+      <link rel="stylesheet" href="/odoo_meta_reporting/static/src/css/dashboard.css?v=3"/>
       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"/>
-      <script type="text/javascript" src="/odoo_meta_reporting/static/src/js/dashboard.js?v=5"/>
+      <script type="text/javascript" src="/odoo_meta_reporting/static/src/js/dashboard.js?v=6"/>
     </t>
   </template>
 

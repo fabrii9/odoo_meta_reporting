@@ -522,6 +522,19 @@
         });
     };
 
+    const STATUS_LABELS = {
+        ACTIVE: { label: 'Activo', cls: 'status-active' },
+        PAUSED: { label: 'Pausado', cls: 'status-paused' },
+        DELETED: { label: 'Eliminado', cls: 'status-off' },
+        PENDING_REVIEW: { label: 'En revisión', cls: 'status-paused' },
+        DISAPPROVED: { label: 'Rechazado', cls: 'status-off' },
+        PREAPPROVED: { label: 'Pre-aprobado', cls: 'status-paused' },
+        PENDING_BILLING_INFO: { label: 'Sin facturación', cls: 'status-off' },
+        CAMPAIGN_PAUSED: { label: 'Campaña pausada', cls: 'status-paused' },
+        ADSET_PAUSED: { label: 'Adset pausado', cls: 'status-paused' },
+        ARCHIVED: { label: 'Archivado', cls: 'status-off' },
+    };
+
     const renderCreatives = (ads) => {
         const grid = document.getElementById('creatives-grid');
         if (!grid) return;
@@ -533,16 +546,36 @@
             return;
         }
 
-        withImage.slice(0, 24).forEach(ad => {
+        // Activos primero, luego por gasto descendente
+        const sorted = withImage.slice().sort((a, b) => {
+            const aActive = (a.ad_status === 'ACTIVE') ? 0 : 1;
+            const bActive = (b.ad_status === 'ACTIVE') ? 0 : 1;
+            if (aActive !== bActive) return aActive - bActive;
+            return (b.spend || 0) - (a.spend || 0);
+        });
+
+        sorted.slice(0, 48).forEach(ad => {
             const card = document.createElement('div');
             card.className = 'creative-card';
+
+            const imgWrap = document.createElement('div');
+            imgWrap.className = 'creative-img-wrap';
 
             const img = document.createElement('img');
             img.src = ad.thumbnail_url || ad.image_url;
             img.alt = ad.ad_name || 'anuncio';
             img.loading = 'lazy';
             img.onerror = () => { img.style.display = 'none'; };
-            card.appendChild(img);
+            imgWrap.appendChild(img);
+
+            // Badge de estado
+            const st = STATUS_LABELS[ad.ad_status] || { label: ad.ad_status || 'Sin datos', cls: 'status-unknown' };
+            const badge = document.createElement('span');
+            badge.className = 'creative-status ' + st.cls;
+            badge.textContent = st.label;
+            imgWrap.appendChild(badge);
+
+            card.appendChild(imgWrap);
 
             const body = document.createElement('div');
             body.className = 'creative-body';

@@ -369,6 +369,40 @@
     background: #f0f2f5;
 }
 
+.creative-img-wrap {
+    position: relative;
+}
+
+.creative-status {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.creative-status.status-active {
+    background: #42b72a;
+}
+
+.creative-status.status-paused {
+    background: #f7b928;
+    color: #1c1e21;
+}
+
+.creative-status.status-off {
+    background: #d93025;
+}
+
+.creative-status.status-unknown {
+    background: #8a8d91;
+}
+
 .creative-body {
     padding: 10px 12px;
 }

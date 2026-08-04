@@ -204,6 +204,7 @@ class BigQueryQueryService:
                 ad_name,
                 ANY_VALUE(thumbnail_url) AS thumbnail_url,
                 ANY_VALUE(image_url) AS image_url,
+                ANY_VALUE(ad_status) AS ad_status,
                 SUM(spend) AS spend,
                 SUM(impressions) AS impressions,
                 SUM(clicks) AS clicks,

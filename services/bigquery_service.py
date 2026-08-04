@@ -154,6 +154,10 @@ class BigQueryService:
             base.insert(3, SchemaField("adset_id", "STRING"))
             base.insert(4, SchemaField("adset_name", "STRING"))
 
+        if level == 'campaign':
+            # Breakdown por plataforma para el gráfico "Ubicación"
+            base.append(SchemaField("publisher_platform", "STRING"))
+
         if level == 'ad':
             base.insert(5, SchemaField("ad_id", "STRING"))
             base.insert(6, SchemaField("ad_name", "STRING"))
@@ -166,5 +170,7 @@ class BigQueryService:
             base.append(SchemaField("quality_ranking", "STRING"))
             base.append(SchemaField("engagement_rate_ranking", "STRING"))
             base.append(SchemaField("conversion_rate_ranking", "STRING"))
+            # Estado del anuncio (ACTIVE, PAUSED, etc.)
+            base.append(SchemaField("ad_status", "STRING"))
 
         return base
