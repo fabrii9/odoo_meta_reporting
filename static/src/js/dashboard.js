@@ -19,6 +19,7 @@
 
     let dailyChart = null;
     let placementChart = null;
+    let lastData = null;
 
     const getFilters = () => {
         return {
@@ -79,6 +80,7 @@
             }
 
             renderDashboard(data);
+            lastData = data;
         } catch (err) {
             console.error('[MetaDashboard] Error:', err);
             showError('Error de conexión: ' + err.message);
@@ -253,6 +255,53 @@
         });
     };
 
+    // Exportar CSV de la pestaña activa
+    const exportCSV = () => {
+        if (!lastData) {
+            showError('Primero cargá los datos con "Actualizar".');
+            return;
+        }
+        const activeTab = document.querySelector('.tab-btn.active');
+        const tab = activeTab ? activeTab.dataset.tab : 'campaigns';
+        const configs = {
+            campaigns: { key: 'campaigns', label: 'campanias', cols: ['campaign_name', 'spend', 'impressions', 'clicks', 'ctr'] },
+            adsets: { key: 'adsets', label: 'adsets', cols: ['campaign_name', 'adset_name', 'spend', 'impressions', 'clicks', 'ctr'] },
+            ads: { key: 'ads', label: 'anuncios', cols: ['campaign_name', 'ad_name', 'spend', 'impressions', 'clicks', 'ctr'] },
+        };
+        const cfg = configs[tab] || configs.campaigns;
+        const rows = lastData[cfg.key] || [];
+        if (!rows.length) {
+            showError('No hay datos para descargar en esta pestaña.');
+            return;
+        }
+        showError('');
+
+        const escapeCell = (v) => {
+            if (v === null || v === undefined) return '';
+            const s = String(v);
+            return /[";\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+        };
+
+        // Punto y coma como separador (Excel es-AR usa coma decimal)
+        const lines = [cfg.cols.join(';')];
+        rows.forEach(row => {
+            lines.push(cfg.cols.map(c => escapeCell(row[c])).join(';'));
+        });
+
+        // BOM para que Excel abra el UTF-8 correctamente
+        const blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const filters = getFilters();
+        const filename = 'meta_ads_' + cfg.label + '_' + filters.date_from + '_' + filters.date_to + '.csv';
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
     // Tabs
     const initTabs = () => {
         const tabBtns = document.querySelectorAll('.tab-btn');
@@ -282,6 +331,11 @@
         const btnRefresh = document.getElementById('btn-refresh');
         if (btnRefresh) {
             btnRefresh.addEventListener('click', fetchData);
+        }
+
+        const btnDownload = document.getElementById('btn-download');
+        if (btnDownload) {
+            btnDownload.addEventListener('click', exportCSV);
         }
 
         initTabs();
