@@ -54,7 +54,6 @@ class BigQueryService:
             dataset.location = "US"
             self.client.create_dataset(dataset, exists_ok=True)
 
-<<<<<<< HEAD
         # Crear tabla si no existe
         try:
             self.client.get_table(table_ref)
@@ -64,27 +63,6 @@ class BigQueryService:
             table = bigquery.Table(table_ref, schema=schema)
             # Sin partición para compatibilidad con DML queries simples
             self.client.create_table(table, exists_ok=True)
-=======
-        # Crear tabla con DDL (más robusto que la API)
-        schema = self._build_schema(level)
-        columns_sql = ', '.join(
-            f"{field.name} {self._bq_type(field.field_type)}"
-            for field in schema
-        )
-        ddl = f"""
-            CREATE TABLE IF NOT EXISTS `{table_ref}` (
-                {columns_sql}
-            )
-            PARTITION BY date
-        """
-        try:
-            _logger.info('BigQuery: asegurando tabla %s', table_ref)
-            job = self.client.query(ddl)
-            job.result()
-        except BadRequest as e:
-            _logger.error('BigQuery DDL error: %s', e)
-            raise
->>>>>>> origin/main
 
         return True
 
