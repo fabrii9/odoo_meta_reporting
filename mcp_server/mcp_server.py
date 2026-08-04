@@ -32,7 +32,7 @@ _logger = logging.getLogger('meta-ads-mcp')
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'services'))
 from bigquery_query_service import BigQueryQueryService  # noqa: E402
 
-from mcp.server.fastmcp import FastMCP  # noqa: E402
+from fastmcp import FastMCP  # noqa: E402
 
 PROJECT_ID = os.environ.get('META_BQ_PROJECT_ID', '').strip()
 DATASET = os.environ.get('META_BQ_DATASET', 'meta_ads').strip()
@@ -52,7 +52,7 @@ with open(CREDENTIALS_FILE) as f:
 
 _service = BigQueryQueryService(PROJECT_ID, _credentials_json)
 
-mcp = FastMCP('meta-ads-reporting', host=HOST, port=PORT)
+mcp = FastMCP('meta-ads-reporting')
 
 
 def _table_ref(level):
@@ -167,6 +167,6 @@ def get_placements(date_from: str = '', date_to: str = '', campaign_name: str = 
 if __name__ == '__main__':
     _logger.info('MCP Meta Ads: proyecto=%s dataset=%s transport=%s', PROJECT_ID, DATASET, TRANSPORT)
     if TRANSPORT == 'http':
-        mcp.run(transport='streamable-http')
+        mcp.run(transport='http', host=HOST, port=PORT)
     else:
         mcp.run()
